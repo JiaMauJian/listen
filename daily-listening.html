@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>每日英聽小電台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#EAF4FB; --ink:#1E2A3A; --blue:#2E5EAA; --blue-deep:#1F4587;
+  --sun:#FFB830; --sun-deep:#E89A00; --coral:#FF6B6B; --mint:#3FBF8F;
+  --card:#FFFFFF; --line:#D7E6F2; --muted:#6B7C90;
+  --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Nunito','Microsoft JhengHei','PingFang TC',sans-serif;
+  background:var(--sky); color:var(--ink); min-height:100vh;
+}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 40px}
+.en{font-family:'Fredoka','Nunito',sans-serif}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{
+  width:44px;height:44px;border-radius:14px;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 0 var(--blue-deep);
+}
+.logo h1{font-size:19px;font-weight:800;line-height:1.2}
+.logo p{font-size:12px;color:var(--muted)}
+.streak{
+  background:var(--card);border:2px solid var(--line);border-radius:999px;
+  padding:8px 14px;font-weight:800;font-size:15px;display:flex;gap:6px;align-items:center;
+}
+
+/* ---------- week strip ---------- */
+.week{display:flex;gap:6px;margin:4px 0 18px}
+.day-chip{
+  flex:1;background:var(--card);border:2px solid var(--line);border-radius:14px;
+  padding:8px 2px;text-align:center;cursor:pointer;transition:transform .12s;
+  user-select:none;
+}
+.day-chip:active{transform:scale(.94)}
+.day-chip .d{font-size:11px;color:var(--muted);font-weight:700}
+.day-chip .n{font-size:15px;font-weight:800;margin-top:2px}
+.day-chip.today{border-color:var(--sun);background:#FFF6E3}
+.day-chip.done{border-color:var(--mint);background:#E9F9F2}
+.day-chip.done .n{color:var(--mint)}
+.day-chip.active{border-color:var(--blue);background:#E7EFFA}
+
+/* ---------- card ---------- */
+.card{
+  background:var(--card);border-radius:var(--radius);padding:22px 20px;
+  border:2px solid var(--line);box-shadow:0 6px 0 rgba(46,94,170,.08);
+  margin-bottom:16px;
+}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--blue);margin-bottom:6px}
+.card h2{font-size:22px;font-weight:800;margin-bottom:4px}
+.card h2.en{font-size:24px;font-weight:600}
+.sub{font-size:14px;color:var(--muted);margin-bottom:14px}
+
+/* ---------- steps ---------- */
+.stepbar{display:flex;gap:6px;margin-bottom:18px}
+.stepbar span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.stepbar span.on{background:var(--sun)}
+
+/* ---------- vocab ---------- */
+.vocab{display:flex;flex-direction:column;gap:10px;margin:14px 0 18px}
+.vword{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#F4F9FE;border:2px solid var(--line);border-radius:14px;padding:12px 14px;
+}
+.vword .w{font-weight:700;font-size:17px}
+.vword .zh{color:var(--muted);font-size:14px;font-weight:700}
+.vword button{
+  border:none;background:var(--blue);color:#fff;width:34px;height:34px;border-radius:10px;
+  font-size:15px;cursor:pointer;flex-shrink:0;margin-left:10px;
+}
+
+/* ---------- play stage (signature) ---------- */
+.stage{display:flex;flex-direction:column;align-items:center;padding:10px 0 6px}
+.playwrap{position:relative;width:150px;height:150px;margin:14px 0}
+.ring{
+  position:absolute;inset:0;border-radius:50%;border:3px solid var(--sun);
+  opacity:0;pointer-events:none;
+}
+.playing .ring{animation:ripple 1.8s ease-out infinite}
+.playing .ring:nth-child(2){animation-delay:.6s}
+.playing .ring:nth-child(3){animation-delay:1.2s}
+@keyframes ripple{
+  0%{transform:scale(.85);opacity:.8}
+  100%{transform:scale(1.5);opacity:0}
+}
+@media (prefers-reduced-motion: reduce){.playing .ring{animation:none}}
+.playbtn{
+  position:absolute;inset:0;border-radius:50%;border:none;cursor:pointer;
+  background:var(--sun);box-shadow:0 6px 0 var(--sun-deep);
+  font-size:52px;color:#fff;display:flex;align-items:center;justify-content:center;
+  transition:transform .1s;
+}
+.playbtn:active{transform:translateY(3px);box-shadow:0 3px 0 var(--sun-deep)}
+.speed{display:flex;gap:8px;margin-top:6px}
+.speed button{
+  border:2px solid var(--line);background:var(--card);border-radius:999px;
+  padding:7px 16px;font-weight:800;font-size:14px;cursor:pointer;color:var(--muted);
+}
+.speed button.on{border-color:var(--blue);color:var(--blue);background:#E7EFFA}
+.listen-hint{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
+.count{font-size:13px;color:var(--muted);margin-top:8px;font-weight:700}
+
+/* ---------- quiz ---------- */
+.qnum{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.question{font-size:17px;font-weight:700;margin-bottom:14px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  text-align:left;border:2px solid var(--line);background:#F8FBFE;border-radius:14px;
+  padding:13px 15px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:transform .1s;
+}
+.opt:active{transform:scale(.98)}
+.opt.right{border-color:var(--mint);background:#E9F9F2}
+.opt.wrong{border-color:var(--coral);background:#FFEDED}
+.feedback{margin-top:12px;font-weight:800;font-size:15px;min-height:22px}
+.feedback.ok{color:var(--mint)}
+.feedback.no{color:var(--coral)}
+
+/* ---------- transcript / result ---------- */
+.score-big{font-size:44px;font-weight:800;text-align:center;margin:8px 0 2px;color:var(--blue)}
+.score-msg{text-align:center;font-weight:800;margin-bottom:14px}
+.transcript{
+  background:#F4F9FE;border-radius:14px;padding:16px;font-size:15px;line-height:1.8;
+  border:2px solid var(--line);margin-top:10px;
+}
+.transcript p{margin-bottom:8px}
+
+/* ---------- buttons ---------- */
+.btn{
+  width:100%;border:none;border-radius:16px;padding:15px;font-size:16px;font-weight:800;
+  cursor:pointer;font-family:inherit;margin-top:16px;transition:transform .1s;
+}
+.btn:active{transform:translateY(2px)}
+.btn.primary{background:var(--blue);color:#fff;box-shadow:0 4px 0 var(--blue-deep)}
+.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;padding:10px;margin-top:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- BBC card ---------- */
+.bbc{background:linear-gradient(135deg,#2E5EAA,#1F4587);color:#fff;border-color:#1F4587}
+.bbc .eyebrow{color:var(--sun)}
+.bbc .sub{color:#C9DAF2}
+.bbc a{
+  display:block;text-align:center;background:var(--sun);color:var(--ink);
+  border-radius:16px;padding:14px;font-weight:800;text-decoration:none;margin-top:14px;
+  box-shadow:0 4px 0 var(--sun-deep);
+}
+.bbc ul{list-style:none;margin-top:10px}
+.bbc li{font-size:14px;color:#E3EDFA;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.2)}
+.hidden{display:none}
+.tts-warn{
+  background:#FFF6E3;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;
+  font-size:13px;font-weight:700;margin-bottom:14px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">📻</div>
+    <div>
+      <h1>每日英聽小電台</h1>
+      <p>每天 2 分鐘，耳朵變厲害</p>
+    </div>
+  </div>
+  <div class="streak">🔥 <span id="streakNum">0</span></div>
+</header>
+
+<div class="week" id="weekStrip"></div>
+
+<div id="ttsWarn" class="tts-warn hidden">⚠️ 這個瀏覽器暫時找不到英文語音，聽力播放可能沒有聲音。建議改用 Chrome 或 Safari 開啟。</div>
+
+<div id="screen"></div>
+
+</div>
+
+<script>
+/* ================= 課程內容 ================= */
+var LESSONS = [
+{ // Mon
+  title:"The Clever Octopus", zh:"聰明的章魚",
+  vocab:[["octopus","章魚"],["arms","手臂（觸手）"],["hide","躲藏"]],
+  text:[
+    "Today, let's talk about a very clever sea animal: the octopus.",
+    "An octopus has eight arms, and it can use them like hands.",
+    "It can open a jar to get food inside!",
+    "When an octopus is scared, it can hide very well.",
+    "It changes its color to look like a rock or the sand.",
+    "Some octopuses even carry two shells and use them as a little house.",
+    "Scientists say the octopus is one of the smartest animals in the sea."
+  ],
+  quiz:[
+    {q:"How many arms does an octopus have?",o:["Six","Eight","Ten"],a:1},
+    {q:"What can an octopus do when it is scared?",o:["It changes its color","It jumps out of the water","It makes a loud sound"],a:0},
+    {q:"What do some octopuses use as a house?",o:["A jar","Two shells","A big fish"],a:1}
+  ]
+},
+{ // Tue
+  title:"Pizza Day at School", zh:"學校的披薩日",
+  vocab:[["favorite","最喜歡的"],["cheese","起司"],["share","分享"]],
+  text:[
+    "Friday is my favorite day at school.",
+    "Do you know why? It is pizza day!",
+    "At lunch time, everyone lines up quickly.",
+    "The pizza is hot, and the cheese is soft and yellow.",
+    "My best friend Amy does not like tomatoes, so she gives them to me.",
+    "I give her some of my apple juice.",
+    "We like to share our food.",
+    "Pizza day always makes us happy."
+  ],
+  quiz:[
+    {q:"When is pizza day?",o:["Monday","Wednesday","Friday"],a:2},
+    {q:"What does Amy give to the speaker?",o:["Her tomatoes","Her cheese","Her juice"],a:0},
+    {q:"How do the friends feel on pizza day?",o:["Tired","Happy","Angry"],a:1}
+  ]
+},
+{ // Wed
+  title:"A Trip to the Night Market", zh:"逛夜市",
+  vocab:[["night market","夜市"],["delicious","好吃的"],["game","遊戲"]],
+  text:[
+    "Last Saturday, I went to the night market with my family.",
+    "There were so many people and so many lights!",
+    "First, we ate fried chicken. It was hot and delicious.",
+    "Then my brother wanted to play a game.",
+    "He threw three balls and won a small toy duck.",
+    "I drank some papaya milk. It was sweet and cold.",
+    "Before we went home, Mom bought some fruit for tomorrow.",
+    "I love our night market. What about you?"
+  ],
+  quiz:[
+    {q:"When did the family go to the night market?",o:["Last Saturday","Last Sunday","Yesterday"],a:0},
+    {q:"What did the brother win?",o:["A toy car","A toy duck","A balloon"],a:1},
+    {q:"What did Mom buy before going home?",o:["Fried chicken","Papaya milk","Some fruit"],a:2}
+  ]
+},
+{ // Thu
+  title:"The Little Astronaut", zh:"小小太空人",
+  vocab:[["astronaut","太空人"],["float","漂浮"],["Earth","地球"]],
+  text:[
+    "Ben wants to be an astronaut when he grows up.",
+    "Astronauts fly into space in a rocket.",
+    "In space, there is no up or down, so everything floats.",
+    "Astronauts float, their food floats, and even water floats like little balls!",
+    "From space, the Earth looks like a beautiful blue and green ball.",
+    "At night, Ben reads books about the moon and the stars.",
+    "One day, he says, I will wave to you from space!"
+  ],
+  quiz:[
+    {q:"What does Ben want to be?",o:["A pilot","An astronaut","A teacher"],a:1},
+    {q:"In space, what does water look like?",o:["Little balls","A long river","Blue ice"],a:0},
+    {q:"What does the Earth look like from space?",o:["A red circle","A yellow star","A blue and green ball"],a:2}
+  ]
+},
+{ // Fri
+  title:"My Dog Loves Rain", zh:"愛下雨的狗",
+  vocab:[["rain","雨"],["jump","跳"],["towel","毛巾"]],
+  text:[
+    "Most dogs do not like rain, but my dog Coco is different.",
+    "When it rains, Coco runs to the door and waits.",
+    "She wants to go outside and jump in the water!",
+    "She jumps in one puddle, then another, and another.",
+    "Her legs get wet and dirty, but she looks so happy.",
+    "After our walk, I dry her with a big yellow towel.",
+    "Then she sleeps by my feet, and dreams about the next rainy day."
+  ],
+  quiz:[
+    {q:"What does Coco do when it rains?",o:["She hides under the bed","She waits at the door","She sleeps all day"],a:1},
+    {q:"What does Coco jump in?",o:["Puddles","Boxes","Leaves"],a:0},
+    {q:"What color is the towel?",o:["Blue","White","Yellow"],a:2}
+  ]
+}
+];
+
+var DAY_NAMES = ["週一","週二","週三","週四","週五","週六","週日"];
+
+/* ================= 狀態 ================= */
+var state = {
+  selectedDay: 0,        // 0-4 = 課程, 5/6 = BBC
+  step: 0,               // 0 vocab, 1 listen, 2 quiz, 3 result
+  qIndex: 0,
+  score: 0,
+  answered: false,
+  playedOnce: false,
+  rate: 1.0,
+  playing: false,
+  progress: { doneDates: {}, streak: 0 }   // doneDates: {"2026-07-17": dayIndex}
+};
+
+/* ================= 儲存（有 window.storage 就用，沒有就只存在記憶體） ================= */
+function todayKey(){
+  var d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+async function loadProgress(){
+  try{
+    if(window.storage){
+      var r = await window.storage.get("listen-progress");
+      if(r && r.value){ state.progress = JSON.parse(r.value); }
+    }
+  }catch(e){ /* 第一次使用，沒有資料 */ }
+  renderStreak(); renderWeek();
+}
+async function saveProgress(){
+  try{
+    if(window.storage){
+      await window.storage.set("listen-progress", JSON.stringify(state.progress));
+    }
+  }catch(e){ console.log("save failed", e); }
+}
+function markTodayDone(){
+  var k = todayKey();
+  if(!state.progress.doneDates[k]){
+    state.progress.doneDates[k] = state.selectedDay;
+    state.progress.streak = calcStreak();
+    saveProgress();
+  }
+  renderStreak(); renderWeek();
+}
+function calcStreak(){
+  var n = 0; var d = new Date();
+  while(true){
+    var k = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    if(state.progress.doneDates[k] !== undefined){ n++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return n;
+}
+
+/* ================= 語音 (TTS) ================= */
+var enVoice = null;
+function pickVoice(){
+  var vs = speechSynthesis.getVoices();
+  if(!vs || !vs.length) return;
+  var prefer = ["Google US English","Samantha","Google UK English Female","Karen","Daniel"];
+  for(var i=0;i<prefer.length;i++){
+    for(var j=0;j<vs.length;j++){
+      if(vs[j].name.indexOf(prefer[i]) !== -1){ enVoice = vs[j]; return; }
+    }
+  }
+  for(var j=0;j<vs.length;j++){
+    if(vs[j].lang && vs[j].lang.indexOf("en") === 0){ enVoice = vs[j]; return; }
+  }
+}
+if("speechSynthesis" in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}else{
+  document.getElementById("ttsWarn").classList.remove("hidden");
+}
+setTimeout(function(){
+  if("speechSynthesis" in window && !enVoice && speechSynthesis.getVoices().length === 0){
+    document.getElementById("ttsWarn").classList.remove("hidden");
+  }
+}, 2500);
+
+function speakWord(w){
+  stopSpeak();
+  var u = new SpeechSynthesisUtterance(w);
+  u.lang = "en-US"; u.rate = 0.9;
+  if(enVoice) u.voice = enVoice;
+  speechSynthesis.speak(u);
+}
+var speakQueue = [], speaking = false;
+function speakPassage(sentences, onDone){
+  stopSpeak();
+  speakQueue = sentences.slice();
+  speaking = true;
+  state.playing = true;
+  updatePlayUI();
+  function next(){
+    if(!speaking || speakQueue.length === 0){
+      speaking = false; state.playing = false;
+      updatePlayUI();
+      if(onDone && speakQueue.length === 0) onDone();
+      return;
+    }
+    var s = speakQueue.shift();
+    var u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = state.rate;
+    if(enVoice) u.voice = enVoice;
+    u.onend = function(){ setTimeout(next, 350); };
+    u.onerror = function(){ setTimeout(next, 350); };
+    speechSynthesis.speak(u);
+  }
+  next();
+}
+function stopSpeak(){
+  speaking = false; speakQueue = [];
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  state.playing = false;
+  updatePlayUI();
+}
+function updatePlayUI(){
+  var wrap = document.getElementById("playwrap");
+  var btn = document.getElementById("playbtn");
+  if(!wrap || !btn) return;
+  if(state.playing){ wrap.classList.add("playing"); btn.textContent = "⏸"; }
+  else{ wrap.classList.remove("playing"); btn.textContent = "▶"; }
+}
+
+/* ================= 畫面 ================= */
+function h(html){ document.getElementById("screen").innerHTML = html; }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+function renderStreak(){
+  document.getElementById("streakNum").textContent = state.progress.streak;
+}
+
+function renderWeek(){
+  var strip = document.getElementById("weekStrip");
+  var jsDay = new Date().getDay();          // 0=Sun
+  var todayIdx = (jsDay + 6) % 7;           // 0=Mon
+  var doneDays = {};
+  for(var k in state.progress.doneDates){ doneDays[state.progress.doneDates[k]] = true; }
+  var html = "";
+  for(var i=0;i<7;i++){
+    var cls = "day-chip";
+    if(i === todayIdx) cls += " today";
+    if(doneDays[i]) cls += " done";
+    if(i === state.selectedDay) cls += " active";
+    var label = (i < 5) ? "第" + (i+1) + "課" : "BBC";
+    var mark = doneDays[i] ? "✓" : label;
+    html += '<div class="' + cls + '" onclick="selectDay(' + i + ')">' +
+            '<div class="d">' + DAY_NAMES[i] + '</div><div class="n">' + mark + '</div></div>';
+  }
+  strip.innerHTML = html;
+}
+
+function selectDay(i){
+  stopSpeak();
+  state.selectedDay = i;
+  state.step = 0; state.qIndex = 0; state.score = 0; state.playedOnce = false;
+  renderWeek();
+  if(i >= 5) renderBBC(); else renderStep();
+}
+
+function stepBar(on){
+  var s = "";
+  for(var i=0;i<4;i++) s += '<span class="' + (i<=on?"on":"") + '"></span>';
+  return '<div class="stepbar">' + s + '</div>';
+}
+
+/* ---- 步驟 0：單字 ---- */
+function renderStep(){
+  var L = LESSONS[state.selectedDay];
+  if(state.step === 0){
+    var v = "";
+    for(var i=0;i<L.vocab.length;i++){
+      v += '<div class="vword"><div><div class="w en">' + L.vocab[i][0] + '</div>' +
+           '<div class="zh">' + L.vocab[i][1] + '</div></div>' +
+           '<button onclick="speakWord(\'' + L.vocab[i][0] + '\')" aria-label="播放單字">🔊</button></div>';
+    }
+    h(stepBar(0) +
+      '<div class="card">' +
+      '<div class="eyebrow">STEP 1 · 單字預習</div>' +
+      '<h2 class="en">' + L.title + '</h2>' +
+      '<div class="sub">' + L.zh + '｜先認識 3 個單字，按 🔊 聽發音</div>' +
+      '<div class="vocab">' + v + '</div>' +
+      '<button class="btn primary" onclick="goStep(1)">我準備好了，開始聽 🎧</button>' +
+      '</div>');
+  }
+  else if(state.step === 1){
+    h(stepBar(1) +
+      '<div class="card">' +
+      '<div class="eyebrow">STEP 2 · 仔細聽</div>' +
+      '<h2 class="en">' + L.title + '</h2>' +
+      '<div class="sub">閉上眼睛聽也可以！聽不懂沒關係，可以再聽一次</div>' +
+      '<div class="stage">' +
+      '<div class="playwrap" id="playwrap">' +
+      '<div class="ring"></div><div class="ring"></div><div class="ring"></div>' +
+      '<button class="playbtn" id="playbtn" onclick="togglePlay()" aria-label="播放">▶</button>' +
+      '</div>' +
+      '<div class="speed">' +
+      '<button id="sp1" class="' + (state.rate===0.8?"on":"") + '" onclick="setRate(0.8)">🐢 慢速</button>' +
+      '<button id="sp2" class="' + (state.rate===1.0?"on":"") + '" onclick="setRate(1.0)">🐇 正常</button>' +
+      '</div>' +
+      '<div class="listen-hint" id="listenHint">按黃色按鈕開始播放</div>' +
+      '</div>' +
+      '<button class="btn primary" id="toQuiz" onclick="goStep(2)" ' + (state.playedOnce?"":"disabled") + '>聽完了，去挑戰題目 ✏️</button>' +
+      '</div>');
+  }
+  else if(state.step === 2){
+    renderQuestion();
+  }
+  else{
+    renderResult();
+  }
+}
+function goStep(n){
+  stopSpeak();
+  state.step = n;
+  if(n === 2){ state.qIndex = 0; state.score = 0; }
+  renderStep();
+}
+function setRate(r){
+  state.rate = r;
+  var s1 = document.getElementById("sp1"), s2 = document.getElementById("sp2");
+  if(s1) s1.className = (r===0.8)?"on":"";
+  if(s2) s2.className = (r===1.0)?"on":"";
+}
+function togglePlay(){
+  if(state.playing){ stopSpeak(); return; }
+  var L = LESSONS[state.selectedDay];
+  var hint = document.getElementById("listenHint");
+  if(hint) hint.textContent = "正在播放… 再按一次可以暫停";
+  speakPassage(L.text, function(){
+    state.playedOnce = true;
+    var b = document.getElementById("toQuiz");
+    if(b) b.disabled = false;
+    var hint2 = document.getElementById("listenHint");
+    if(hint2) hint2.textContent = "聽完了！可以再聽一次，或去做題目";
+  });
+}
+
+/* ---- 步驟 2：測驗 ---- */
+function renderQuestion(){
+  var L = LESSONS[state.selectedDay];
+  var Q = L.quiz[state.qIndex];
+  state.answered = false;
+  var opts = "";
+  for(var i=0;i<Q.o.length;i++){
+    opts += '<button class="opt en" id="opt' + i + '" onclick="answer(' + i + ')">' +
+            String.fromCharCode(65+i) + '. ' + esc(Q.o[i]) + '</button>';
+  }
+  h(stepBar(2) +
+    '<div class="card">' +
+    '<div class="eyebrow">STEP 3 · 聽力小測驗</div>' +
+    '<div class="qnum">第 ' + (state.qIndex+1) + ' 題 / 共 ' + L.quiz.length + ' 題</div>' +
+    '<div class="question en">' + esc(Q.q) + ' <button class="vword-mini" style="border:none;background:var(--blue);color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;vertical-align:middle" onclick="speakWord(\'' + Q.q.replace(/'/g,"\\'") + '\')">🔊</button></div>' +
+    '<div class="opts">' + opts + '</div>' +
+    '<div class="feedback" id="fb"></div>' +
+    '<button class="btn primary hidden" id="nextQ" onclick="nextQuestion()">下一題 →</button>' +
+    '<button class="btn ghost" onclick="goStep(1)">↺ 回去再聽一次</button>' +
+    '</div>');
+}
+function answer(i){
+  if(state.answered) return;
+  state.answered = true;
+  var L = LESSONS[state.selectedDay];
+  var Q = L.quiz[state.qIndex];
+  var fb = document.getElementById("fb");
+  document.getElementById("opt" + Q.a).classList.add("right");
+  if(i === Q.a){
+    state.score++;
+    fb.textContent = "答對了！🎉"; fb.className = "feedback ok";
+  }else{
+    document.getElementById("opt" + i).classList.add("wrong");
+    fb.textContent = "沒關係，正確答案是 " + String.fromCharCode(65+Q.a) + " 喔"; fb.className = "feedback no";
+  }
+  var nb = document.getElementById("nextQ");
+  if(state.qIndex === L.quiz.length - 1) nb.textContent = "看成績 🏁";
+  nb.classList.remove("hidden");
+}
+function nextQuestion(){
+  var L = LESSONS[state.selectedDay];
+  if(state.qIndex < L.quiz.length - 1){
+    state.qIndex++;
+    renderQuestion();
+  }else{
+    state.step = 3;
+    renderResult();
+  }
+}
+
+/* ---- 步驟 3：結果 + 逐字稿 ---- */
+function renderResult(){
+  var L = LESSONS[state.selectedDay];
+  var msg, emoji;
+  if(state.score === L.quiz.length){ msg = "太棒了，全對！"; emoji = "🏆"; }
+  else if(state.score >= 2){ msg = "很不錯，繼續加油！"; emoji = "🌟"; }
+  else{ msg = "沒關係，多聽幾次就會進步！"; emoji = "💪"; }
+  var tr = "";
+  for(var i=0;i<L.text.length;i++){ tr += "<p>" + esc(L.text[i]) + "</p>"; }
+  markTodayDone();
+  h(stepBar(3) +
+    '<div class="card">' +
+    '<div class="eyebrow">STEP 4 · 今日成果</div>' +
+    '<div class="score-big">' + emoji + ' ' + state.score + ' / ' + L.quiz.length + '</div>' +
+    '<div class="score-msg">' + msg + '</div>' +
+    '<div class="sub" style="margin-bottom:6px">📖 對照逐字稿，把剛剛聽到的內容再看一次：</div>' +
+    '<div class="transcript en">' + tr + '</div>' +
+    '<button class="btn primary" onclick="replayWithText()">🎧 邊看邊再聽一次</button>' +
+    '<button class="btn ghost" onclick="selectDay(state.selectedDay)">↺ 重新練習這一課</button>' +
+    '</div>');
+}
+function replayWithText(){
+  var L = LESSONS[state.selectedDay];
+  if(state.playing){ stopSpeak(); return; }
+  speakPassage(L.text, null);
+}
+
+/* ---- BBC 週末挑戰 ---- */
+function renderBBC(){
+  h('<div class="card bbc">' +
+    '<div class="eyebrow">WEEKEND · BBC 挑戰</div>' +
+    '<h2>週末真人語音挑戰 🇬🇧</h2>' +
+    '<div class="sub">平日聽的是電腦語音，週末來聽聽真正的英國廣播吧！和爸爸媽媽一起聽也可以。</div>' +
+    '<ul>' +
+    '<li>🎯 建議先從 <b>The English We Speak</b> 開始（每集只有 2～3 分鐘）</li>' +
+    '<li>📈 覺得太簡單，再挑戰 <b>6 Minute English</b></li>' +
+    '<li>💡 小技巧：同一集聽兩次，第二次打開網頁上的文字稿對照</li>' +
+    '<li>✅ 聽完回來這裡，按下面的按鈕打卡</li>' +
+    '</ul>' +
+    '<a href="https://www.bbc.co.uk/learningenglish/features/the-english-we-speak" target="_blank" rel="noopener">前往 BBC Learning English →</a>' +
+    '<button class="btn primary" style="background:#3FBF8F;box-shadow:0 4px 0 #2E9970" onclick="markTodayDone();renderBBCDone()">我聽完了，打卡 ✓</button>' +
+    '</div>');
+}
+function renderBBCDone(){
+  h('<div class="card" style="text-align:center">' +
+    '<div style="font-size:52px;margin:8px 0">🎉</div>' +
+    '<h2>週末挑戰完成！</h2>' +
+    '<div class="sub">連續練習 ' + state.progress.streak + ' 天了，超厲害！</div>' +
+    '<button class="btn ghost" onclick="renderBBC()">← 回到挑戰頁</button>' +
+    '</div>');
+}
+
+/* ================= 啟動 ================= */
+(function init(){
+  var jsDay = new Date().getDay();
+  var todayIdx = (jsDay + 6) % 7;
+  state.selectedDay = todayIdx;
+  loadProgress().then(function(){
+    if(state.selectedDay >= 5) renderBBC(); else renderStep();
+  });
+})();
+</script>
+</body>
+</html>

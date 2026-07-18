@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>每日英聽小電台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#EAF4FB; --ink:#1E2A3A; --blue:#2E5EAA; --blue-deep:#1F4587;
+  --sun:#FFB830; --sun-deep:#E89A00; --coral:#FF6B6B; --mint:#3FBF8F;
+  --card:#FFFFFF; --line:#D7E6F2; --muted:#6B7C90;
+  --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Nunito','Microsoft JhengHei','PingFang TC',sans-serif;
+  background:var(--sky); color:var(--ink); min-height:100vh;
+}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 40px}
+.en{font-family:'Fredoka','Nunito',sans-serif}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 14px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{
+  width:44px;height:44px;border-radius:14px;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 0 var(--blue-deep);
+}
+.logo h1{font-size:19px;font-weight:800;line-height:1.2}
+.logo p{font-size:12px;color:var(--muted)}
+.streak{
+  background:var(--card);border:2px solid var(--line);border-radius:999px;
+  padding:8px 14px;font-weight:800;font-size:15px;display:flex;gap:6px;align-items:center;
+}
+
+.dash{
+  background:var(--card);border:2px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:14px;display:flex;gap:14px;align-items:center;
+}
+.dash .num{font-size:26px;font-weight:800;color:var(--blue);line-height:1;font-family:'Fredoka',sans-serif}
+.dash .lbl{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px}
+.dash .col{text-align:center;flex:1}
+.pbar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:0 4px}
+.pbar span{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--mint));border-radius:4px;transition:width .4s}
+
+.card{
+  background:var(--card);border-radius:var(--radius);padding:22px 20px;
+  border:2px solid var(--line);box-shadow:0 6px 0 rgba(46,94,170,.08);
+  margin-bottom:16px;
+}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--blue);margin-bottom:6px}
+.card h2{font-size:22px;font-weight:800;margin-bottom:4px}
+.card h2.en{font-size:24px;font-weight:600}
+.sub{font-size:14px;color:var(--muted);margin-bottom:14px}
+
+.badge{
+  display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;
+  padding:4px 9px;border-radius:999px;margin-bottom:10px;
+}
+.badge.new{background:#FFF6E3;color:var(--sun-deep)}
+.badge.review{background:#E7EFFA;color:var(--blue)}
+
+.stepbar{display:flex;gap:6px;margin-bottom:18px}
+.stepbar span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.stepbar span.on{background:var(--sun)}
+
+.vocab{display:flex;flex-direction:column;gap:10px;margin:14px 0 18px}
+.vword{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#F4F9FE;border:2px solid var(--line);border-radius:14px;padding:12px 14px;
+}
+.vword .w{font-weight:700;font-size:17px}
+.vword .zh{color:var(--muted);font-size:14px;font-weight:700}
+.vword button{
+  border:none;background:var(--blue);color:#fff;width:34px;height:34px;border-radius:10px;
+  font-size:15px;cursor:pointer;flex-shrink:0;margin-left:10px;
+}
+
+.stage{display:flex;flex-direction:column;align-items:center;padding:10px 0 6px}
+.playwrap{position:relative;width:150px;height:150px;margin:14px 0}
+.ring{position:absolute;inset:0;border-radius:50%;border:3px solid var(--sun);opacity:0;pointer-events:none}
+.playing .ring{animation:ripple 1.8s ease-out infinite}
+.playing .ring:nth-child(2){animation-delay:.6s}
+.playing .ring:nth-child(3){animation-delay:1.2s}
+@keyframes ripple{0%{transform:scale(.85);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion: reduce){.playing .ring{animation:none}}
+.playbtn{
+  position:absolute;inset:0;border-radius:50%;border:none;cursor:pointer;
+  background:var(--sun);box-shadow:0 6px 0 var(--sun-deep);
+  font-size:52px;color:#fff;display:flex;align-items:center;justify-content:center;
+  transition:transform .1s;
+}
+.playbtn:active{transform:translateY(3px);box-shadow:0 3px 0 var(--sun-deep)}
+.speed{display:flex;gap:8px;margin-top:6px}
+.speed button{
+  border:2px solid var(--line);background:var(--card);border-radius:999px;
+  padding:7px 16px;font-weight:800;font-size:14px;cursor:pointer;color:var(--muted);
+}
+.speed button.on{border-color:var(--blue);color:var(--blue);background:#E7EFFA}
+.listen-hint{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
+
+.qnum{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.question{font-size:17px;font-weight:700;margin-bottom:14px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  text-align:left;border:2px solid var(--line);background:#F8FBFE;border-radius:14px;
+  padding:13px 15px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:transform .1s;
+}
+.opt:active{transform:scale(.98)}
+.opt.right{border-color:var(--mint);background:#E9F9F2}
+.opt.wrong{border-color:var(--coral);background:#FFEDED}
+.feedback{margin-top:12px;font-weight:800;font-size:15px;min-height:22px}
+.feedback.ok{color:var(--mint)}
+.feedback.no{color:var(--coral)}
+
+.score-big{font-size:44px;font-weight:800;text-align:center;margin:8px 0 2px;color:var(--blue)}
+.score-msg{text-align:center;font-weight:800;margin-bottom:14px}
+.transcript{
+  background:#F4F9FE;border-radius:14px;padding:16px;font-size:15px;line-height:1.8;
+  border:2px solid var(--line);margin-top:10px;
+}
+.transcript p{margin-bottom:8px}
+.mastery-up{
+  background:#FFF6E3;border:2px solid var(--sun);border-radius:14px;
+  padding:12px 14px;text-align:center;font-weight:800;margin-top:14px;
+}
+
+.map-title{font-size:14px;font-weight:800;color:var(--muted);margin:22px 4px 8px;
+  display:flex;justify-content:space-between;align-items:center;}
+.map-cat-title{
+  font-size:14px;font-weight:800;color:var(--ink);
+  margin:18px 4px 8px;display:flex;align-items:center;gap:6px;
+}
+.map-cat-title .cat-emoji{font-size:18px}
+.map-cat-title .cat-count{font-size:11px;color:var(--muted);font-weight:700;margin-left:auto;background:#F4F9FE;padding:3px 8px;border-radius:999px}
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.map-cell{
+  aspect-ratio:1;background:var(--card);border:2px solid var(--line);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;padding:4px;text-align:center;transition:transform .1s;
+}
+.map-cell:active{transform:scale(.94)}
+.map-cell .n{font-size:14px;font-weight:800;color:var(--blue);font-family:'Fredoka',sans-serif}
+.map-cell .stars{font-size:9px;color:var(--sun);margin-top:2px;letter-spacing:1px}
+.map-cell .zh{font-size:9px;color:var(--muted);margin-top:1px;line-height:1.1}
+.map-cell.new{background:#F4F9FE}
+.map-cell.mastered{background:#E9F9F2;border-color:var(--mint)}
+.map-cell.mastered .n{color:var(--mint)}
+.map-cell.due{border-color:var(--sun);background:#FFF6E3}
+
+.btn{
+  width:100%;border:none;border-radius:16px;padding:15px;font-size:16px;font-weight:800;
+  cursor:pointer;font-family:inherit;margin-top:16px;transition:transform .1s;
+}
+.btn:active{transform:translateY(2px)}
+.btn.primary{background:var(--blue);color:#fff;box-shadow:0 4px 0 var(--blue-deep)}
+.btn.sun{background:var(--sun);color:var(--ink);box-shadow:0 4px 0 var(--sun-deep)}
+.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;padding:10px;margin-top:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.hidden{display:none}
+.tts-warn{
+  background:#FFF6E3;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;
+  font-size:13px;font-weight:700;margin-bottom:14px;
+}
+
+.donecard{text-align:center;padding:28px 20px}
+.donecard .emoji{font-size:56px;margin-bottom:6px}
+.donecard h2{font-size:22px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">📻</div>
+    <div>
+      <h1>每日英聽小電台</h1>
+      <p>A1 入門版｜100 課</p>
+    </div>
+  </div>
+  <div class="streak">🔥 <span id="streakNum">0</span></div>
+</header>
+
+<div class="dash" id="dash"></div>
+
+<div id="ttsWarn" class="tts-warn hidden">⚠️ 這個瀏覽器暫時找不到英文語音,聽力播放可能沒有聲音。建議改用 Chrome 或 Safari 開啟。</div>
+
+<div id="screen"></div>
+
+</div>
+
+<script>
+/* ================= 課程內容 (A1 入門) ================= */
+var LESSONS = [
+// ===== 個人與家庭 =====
+{title:"Meet Me",zh:"自我介紹",vocab:[["hello","你好"],["name","名字"],["Taiwan","台灣"]],text:["Hello, everyone!","My name is Lily.","I am nine years old.","I am a girl.","I live in Taiwan.","I go to school every day.","I like to sing and dance.","Nice to meet you!"],quiz:[{q:"What is her name?",o:["Lucy","Lily","Lisa"],a:1},{q:"How old is she?",o:["Eight","Nine","Ten"],a:1},{q:"Where does she live?",o:["Taiwan","Japan","Korea"],a:0}]},
+{title:"I am Nine",zh:"我九歲了",vocab:[["years old","歲"],["girl","女孩"],["boy","男孩"]],text:["How old are you?","I am nine years old.","My brother is five.","My sister is twelve.","My mom is thirty-five.","My dad is forty.","We are a happy family."],quiz:[{q:"How old is the speaker?",o:["Seven","Nine","Eleven"],a:1},{q:"How old is the brother?",o:["Five","Nine","Twelve"],a:0},{q:"How old is the sister?",o:["Ten","Eleven","Twelve"],a:2}]},
+{title:"My Family",zh:"我的家人",vocab:[["family","家人"],["mom","媽媽"],["dad","爸爸"]],text:["This is my family.","I have a mom.","I have a dad.","I have a little brother.","My mom is a teacher.","My dad is a doctor.","My brother is three.","I love my family."],quiz:[{q:"What is the mom's job?",o:["A teacher","A doctor","A cook"],a:0},{q:"How old is the brother?",o:["Two","Three","Four"],a:1},{q:"Who does the speaker love?",o:["Only mom","The family","The dog"],a:1}]},
+{title:"My Mom",zh:"我的媽媽",vocab:[["mother","母親"],["cook","煮飯"],["kind","溫柔"]],text:["My mom is very kind.","She has long black hair.","Her eyes are big and brown.","She is a good cook.","She makes tasty dinner.","She reads to me at night.","I love my mom very much."],quiz:[{q:"What color is her hair?",o:["Brown","Black","Yellow"],a:1},{q:"What color are her eyes?",o:["Blue","Green","Brown"],a:2},{q:"What does she do at night?",o:["Sing","Read","Dance"],a:1}]},
+{title:"My Dad",zh:"我的爸爸",vocab:[["father","父親"],["strong","強壯"],["funny","有趣"]],text:["My dad is tall and strong.","He has short brown hair.","He wears glasses.","He is very funny.","He tells me jokes.","He plays with me on weekends.","My dad is the best!"],quiz:[{q:"How is Dad?",o:["Short","Tall","Small"],a:1},{q:"What does he wear?",o:["A hat","Glasses","A ring"],a:1},{q:"When does he play?",o:["Weekends","Every day","Monday"],a:0}]},
+{title:"My Grandpa",zh:"我的爺爺",vocab:[["grandpa","爺爺"],["old","年老"],["garden","花園"]],text:["My grandpa is seventy.","He has white hair.","He lives in the country.","He has a big garden.","He grows many vegetables.","He tells me old stories.","I love my grandpa."],quiz:[{q:"How old is Grandpa?",o:["Fifty","Sixty","Seventy"],a:2},{q:"What color is his hair?",o:["Black","White","Gray"],a:1},{q:"What does he grow?",o:["Fruits","Vegetables","Flowers"],a:1}]},
+{title:"My Grandma",zh:"我的奶奶",vocab:[["grandma","奶奶"],["cookies","餅乾"],["sweater","毛衣"]],text:["My grandma is very sweet.","She has short gray hair.","She wears a red sweater.","She makes yummy cookies.","She tells me happy stories.","She hugs me tight.","I visit her every week."],quiz:[{q:"What color is her hair?",o:["Brown","Gray","White"],a:1},{q:"What color is her sweater?",o:["Red","Blue","Green"],a:0},{q:"How often does the speaker visit?",o:["Every day","Every week","Every month"],a:1}]},
+{title:"My Little Sister",zh:"我的妹妹",vocab:[["sister","姊妹"],["baby","寶寶"],["cute","可愛"]],text:["I have a little sister.","Her name is Anna.","She is only two years old.","She is small and cute.","She likes to laugh.","She loves her teddy bear.","I take care of her."],quiz:[{q:"What is her name?",o:["Amy","Anna","Ada"],a:1},{q:"How old is she?",o:["Two","Three","Four"],a:0},{q:"What does she love?",o:["A doll","A teddy bear","A ball"],a:1}]},
+{title:"My Big Brother",zh:"我的哥哥",vocab:[["brother","兄弟"],["tall","高"],["basketball","籃球"]],text:["I have a big brother.","His name is Ben.","He is twelve years old.","He is tall and thin.","He plays basketball.","He helps me with homework.","He is my best friend."],quiz:[{q:"What is his name?",o:["Ben","Bob","Bill"],a:0},{q:"How old is he?",o:["Ten","Eleven","Twelve"],a:2},{q:"What does he play?",o:["Soccer","Basketball","Tennis"],a:1}]},
+{title:"My Uncle",zh:"我的叔叔",vocab:[["uncle","叔叔"],["car","汽車"],["fun","好玩"]],text:["My uncle is Dad's brother.","His name is Sam.","He is thirty years old.","He has a big red car.","He takes me to the park.","We eat ice cream together.","Uncle Sam is fun!"],quiz:[{q:"What is his name?",o:["Sam","Sean","Steve"],a:0},{q:"What color is his car?",o:["Blue","Red","Black"],a:1},{q:"What do they eat?",o:["Cake","Cookies","Ice cream"],a:2}]},
+{title:"I am Tall",zh:"我很高",vocab:[["tall","高的"],["short","矮的"],["thin","瘦的"]],text:["I am nine years old.","I am tall for my age.","I have short black hair.","I have big brown eyes.","I am thin.","I like to wear red shirts.","How about you?"],quiz:[{q:"How is the speaker's hair?",o:["Long","Short","Curly"],a:1},{q:"What color are the eyes?",o:["Brown","Blue","Green"],a:0},{q:"What color shirts?",o:["Red","Blue","White"],a:0}]},
+{title:"Big Green Eyes",zh:"大大的綠眼睛",vocab:[["eyes","眼睛"],["long","長的"],["curly","捲的"]],text:["Look at my friend Emma!","She has big green eyes.","She has long curly hair.","Her hair is golden.","She has a sweet smile.","She is very pretty.","Emma is my best friend."],quiz:[{q:"What color are Emma's eyes?",o:["Blue","Green","Brown"],a:1},{q:"Is her hair straight?",o:["Yes","No, curly","Short"],a:1},{q:"What color is her hair?",o:["Black","Brown","Golden"],a:2}]},
+{title:"I am Kind",zh:"我很善良",vocab:[["kind","善良"],["shy","害羞"],["brave","勇敢"]],text:["I am a kind boy.","I help my mom at home.","I share toys with my sister.","I am a little shy.","But I am brave too.","I try new things.","I have many good friends."],quiz:[{q:"Is the speaker kind?",o:["Yes","No","Sometimes"],a:0},{q:"What does the speaker share?",o:["Books","Toys","Food"],a:1},{q:"Is the speaker brave?",o:["Yes","No","A little"],a:0}]},
+{title:"My Hobby",zh:"我的興趣",vocab:[["hobby","興趣"],["read","閱讀"],["library","圖書館"]],text:["I have many hobbies.","I love to read books.","I read after school.","I like storybooks.","I like books about animals.","I go to the library.","Reading is fun!"],quiz:[{q:"What is the hobby?",o:["Drawing","Reading","Singing"],a:1},{q:"When does the speaker read?",o:["Before school","After school","At night only"],a:1},{q:"Where does the speaker go?",o:["The park","The library","The zoo"],a:1}]},
+{title:"Colors I Like",zh:"我喜歡的顏色",vocab:[["red","紅色"],["blue","藍色"],["favorite","最愛的"]],text:["I like colors.","Red is my favorite.","My cup is red.","My hat is red too.","Blue is nice.","The sky is blue.","Green is for grass."],quiz:[{q:"What is the favorite color?",o:["Blue","Red","Green"],a:1},{q:"What color is the sky?",o:["Blue","Red","White"],a:0},{q:"What color is the grass?",o:["Blue","Red","Green"],a:2}]},
+// ===== 日常生活 =====
+{title:"My Morning",zh:"我的早晨",vocab:[["morning","早上"],["wake up","起床"],["bathroom","浴室"]],text:["I wake up at seven.","I say good morning to Mom.","I go to the bathroom.","I brush my teeth.","I wash my face.","I put on my school clothes.","I am ready for school!"],quiz:[{q:"What time does the speaker wake up?",o:["Six","Seven","Eight"],a:1},{q:"Where does the speaker go first?",o:["The kitchen","The bathroom","The garden"],a:1},{q:"What does the speaker put on?",o:["Party clothes","School clothes","Pajamas"],a:1}]},
+{title:"My Evening",zh:"我的晚上",vocab:[["evening","晚上"],["dinner","晚餐"],["homework","作業"]],text:["I get home at four.","I say hi to Mom.","I have a small snack.","I do my homework.","We eat dinner at six.","I watch TV for a while.","Then it is bedtime."],quiz:[{q:"What time does the speaker get home?",o:["Three","Four","Five"],a:1},{q:"What time is dinner?",o:["Five","Six","Seven"],a:1},{q:"What does the speaker do after dinner?",o:["Play outside","Watch TV","Sleep"],a:1}]},
+{title:"Breakfast Time",zh:"早餐時間",vocab:[["breakfast","早餐"],["eggs","蛋"],["hungry","餓的"]],text:["I get up at seven.","I am hungry.","I want to eat.","I like eggs.","I like milk.","I like bread.","Mom makes breakfast.","Breakfast is yummy."],quiz:[{q:"What time does the speaker get up?",o:["Six","Seven","Eight"],a:1},{q:"How does the speaker feel?",o:["Sleepy","Hungry","Sad"],a:1},{q:"Who makes breakfast?",o:["Mom","Dad","Brother"],a:0}]},
+{title:"Bedtime",zh:"睡覺時間",vocab:[["teeth","牙齒"],["face","臉"],["night","夜晚"]],text:["It is nine o'clock.","I brush my teeth.","I wash my face.","I put on my pajamas.","I get in bed.","Mom reads a book.","Good night, Mom!"],quiz:[{q:"What time is it?",o:["Eight","Nine","Ten"],a:1},{q:"What does the speaker wash?",o:["Hands","Face","Feet"],a:1},{q:"Who reads a book?",o:["Dad","Mom","Sister"],a:1}]},
+{title:"Making My Bed",zh:"整理床舖",vocab:[["bed","床"],["blanket","棉被"],["pillow","枕頭"]],text:["I make my bed every day.","I pull up the sheet.","I fold the blanket.","I put my pillow on top.","Now my bed is neat.","My room looks clean.","Mom is happy with me."],quiz:[{q:"How often does the speaker do this?",o:["Every day","Every week","Sometimes"],a:0},{q:"What does the speaker fold?",o:["Sheets","Blanket","Pajamas"],a:1},{q:"How is Mom?",o:["Sad","Happy","Angry"],a:1}]},
+{title:"Washing Dishes",zh:"洗碗",vocab:[["dishes","碗盤"],["wash","洗"],["soap","洗潔精"]],text:["After dinner, I help Mom.","I wash the dishes.","I use warm water.","I use some soap.","I clean the plates and cups.","Mom dries them with a towel.","We are a good team!"],quiz:[{q:"When does the speaker wash dishes?",o:["Before dinner","After dinner","In the morning"],a:1},{q:"What kind of water?",o:["Cold","Warm","Hot"],a:1},{q:"Who dries the dishes?",o:["The speaker","Dad","Mom"],a:2}]},
+{title:"Cleaning My Room",zh:"打掃房間",vocab:[["clean","打掃"],["floor","地板"],["window","窗戶"]],text:["On Saturdays, I clean my room.","I put my toys in the box.","I put books on the shelf.","I sweep the floor.","I open the window.","Fresh air comes in.","Now my room is clean!"],quiz:[{q:"When does the speaker clean?",o:["Fridays","Saturdays","Sundays"],a:1},{q:"Where do the toys go?",o:["The box","The shelf","The floor"],a:0},{q:"What comes in the window?",o:["Rain","Wind","Fresh air"],a:2}]},
+{title:"Watering Plants",zh:"澆花",vocab:[["plants","植物"],["grow","生長"],["flower","花"]],text:["I have some plants at home.","I water them every morning.","They need water to grow.","I have a small green plant.","I have a red flower.","They are getting bigger.","I am a good helper!"],quiz:[{q:"How often does the speaker water them?",o:["Every day","Every week","Every morning"],a:2},{q:"What color is the flower?",o:["Red","Yellow","Pink"],a:0},{q:"Are the plants growing?",o:["Yes","No","A little"],a:0}]},
+{title:"Feeding My Fish",zh:"餵魚",vocab:[["fish","魚"],["feed","餵"],["tank","水族箱"]],text:["I have three little fish.","They live in a fish tank.","They are orange and white.","I feed them every day.","I give them small food.","They swim up to eat.","I love my fish."],quiz:[{q:"How many fish?",o:["Two","Three","Four"],a:1},{q:"What color are they?",o:["Red and blue","Orange and white","Yellow"],a:1},{q:"How often does the speaker feed them?",o:["Every day","Every week","Sometimes"],a:0}]},
+{title:"My Bedroom",zh:"我的房間",vocab:[["bedroom","臥室"],["bed","床"],["desk","書桌"]],text:["This is my bedroom.","It is small.","My bed is blue.","My desk is white.","I have many books.","I have three teddy bears.","I like my bedroom."],quiz:[{q:"What color is the bed?",o:["Blue","White","Red"],a:0},{q:"How many teddy bears?",o:["Two","Three","Four"],a:1},{q:"How is the bedroom?",o:["Big","Small","Cold"],a:1}]},
+{title:"In the Kitchen",zh:"在廚房",vocab:[["kitchen","廚房"],["soup","湯"],["table","桌子"]],text:["Mom is in the kitchen.","She is making soup.","The soup smells good.","I am hungry.","I want a big bowl.","I sit at the table.","Yummy soup!"],quiz:[{q:"Where is Mom?",o:["The kitchen","The park","The car"],a:0},{q:"What is she making?",o:["Cake","Soup","Bread"],a:1},{q:"What does the speaker want?",o:["A small cup","A big bowl","A little spoon"],a:1}]},
+{title:"Sunny Day",zh:"晴天",vocab:[["sun","太陽"],["sky","天空"],["outside","外面"]],text:["Today is a sunny day.","The sun is out.","The sky is bright blue.","It is very warm.","I want to go outside.","I put on my sun hat.","Let us go to the park!"],quiz:[{q:"How is the weather?",o:["Rainy","Sunny","Snowy"],a:1},{q:"What color is the sky?",o:["Gray","Blue","White"],a:1},{q:"Where does the speaker want to go?",o:["Home","The park","School"],a:1}]},
+{title:"Rainy Day",zh:"雨天",vocab:[["rain","雨"],["umbrella","雨傘"],["boots","雨靴"]],text:["It is raining today.","I look outside.","The sky is gray.","I need my umbrella.","I wear my rain boots.","I stay inside and read.","I like rainy days!"],quiz:[{q:"How is the weather?",o:["Sunny","Rainy","Windy"],a:1},{q:"What does the speaker need?",o:["A hat","An umbrella","A coat"],a:1},{q:"What does the speaker do inside?",o:["Sleep","Read","Cook"],a:1}]},
+{title:"Cold Day",zh:"冷天",vocab:[["cold","冷"],["coat","外套"],["scarf","圍巾"]],text:["Today is cold.","I wear a big coat.","I wear a warm scarf.","I wear gloves too.","My hands are warm now.","I drink hot tea.","I feel very cozy."],quiz:[{q:"How is the weather?",o:["Warm","Cold","Hot"],a:1},{q:"What does the speaker wear on the hands?",o:["Gloves","A hat","Socks"],a:0},{q:"What does the speaker drink?",o:["Cold water","Hot tea","Juice"],a:1}]},
+{title:"Snowy Day",zh:"雪天",vocab:[["snow","雪"],["snowman","雪人"],["white","白色"]],text:["Wow, it is snowing!","Everything is white.","The trees look pretty.","I put on my snow boots.","I go outside with my brother.","We make a big snowman.","Snow is so much fun!"],quiz:[{q:"What color is everything?",o:["White","Gray","Blue"],a:0},{q:"Who does the speaker play with?",o:["Sister","Brother","Friend"],a:1},{q:"What do they make?",o:["A snowball","A snowman","A snowhouse"],a:1}]},
+{title:"Windy Day",zh:"起風的日子",vocab:[["wind","風"],["blow","吹"],["kite","風箏"]],text:["Today is very windy.","The wind blows hard.","My hair flies everywhere.","The leaves fly in the sky.","I fly my kite.","My kite goes up high.","Windy days are fun!"],quiz:[{q:"How is the weather?",o:["Rainy","Windy","Snowy"],a:1},{q:"What flies in the sky?",o:["Leaves","Snowflakes","Rain"],a:0},{q:"What does the speaker fly?",o:["A plane","A kite","A bird"],a:1}]},
+{title:"What Time?",zh:"幾點了?",vocab:[["clock","時鐘"],["hour","小時"],["lunch","午餐"]],text:["Look at the clock.","What time is it?","It is seven in the morning.","Time for breakfast!","Now it is twelve.","Time for lunch!","Now it is nine at night.","Time for bed!"],quiz:[{q:"What time is breakfast?",o:["Six","Seven","Eight"],a:1},{q:"What time is lunch?",o:["Eleven","Twelve","One"],a:1},{q:"What time is bed?",o:["Eight","Nine","Ten"],a:1}]},
+{title:"Days of the Week",zh:"一週七天",vocab:[["week","星期"],["Sunday","星期日"],["Friday","星期五"]],text:["There are seven days in a week.","Monday, Tuesday, Wednesday.","Thursday, Friday.","Saturday and Sunday.","I go to school Monday to Friday.","I rest on Saturday and Sunday.","Friday is my favorite day!"],quiz:[{q:"How many days in a week?",o:["Five","Six","Seven"],a:2},{q:"When does the speaker rest?",o:["Weekdays","Weekend","Every day"],a:1},{q:"What is the favorite day?",o:["Monday","Friday","Sunday"],a:1}]},
+{title:"Today Is Monday",zh:"今天星期一",vocab:[["today","今天"],["tomorrow","明天"],["Wednesday","星期三"]],text:["Today is Monday.","I go to school today.","Tomorrow is Tuesday.","After that is Wednesday.","Then Thursday and Friday.","After Friday is the weekend.","I love Fridays best!"],quiz:[{q:"What day is it today?",o:["Sunday","Monday","Tuesday"],a:1},{q:"What is tomorrow?",o:["Monday","Tuesday","Wednesday"],a:1},{q:"What comes after Thursday?",o:["Friday","Saturday","Wednesday"],a:0}]},
+{title:"My Clothes",zh:"我的衣服",vocab:[["shirt","襯衫"],["shoes","鞋子"],["coat","外套"]],text:["I have a red shirt.","I have blue pants.","I have white socks.","I have black shoes.","Today is cold.","I wear a warm coat.","I wear a hat too."],quiz:[{q:"What color is the shirt?",o:["Red","Blue","White"],a:0},{q:"What color are the shoes?",o:["White","Black","Blue"],a:1},{q:"How is the weather?",o:["Hot","Warm","Cold"],a:2}]},
+// ===== 學校與學習 =====
+{title:"Going to School",zh:"上學去",vocab:[["Monday","星期一"],["bus","公車"],["happy","開心的"]],text:["It is Monday.","I go to school.","I take a bus.","My friend is on the bus.","We say hello.","School starts at eight.","I am happy."],quiz:[{q:"What day is it?",o:["Sunday","Monday","Tuesday"],a:1},{q:"How does the speaker go to school?",o:["By car","By bus","By bike"],a:1},{q:"What time does school start?",o:["Seven","Eight","Nine"],a:1}]},
+{title:"My School Bag",zh:"我的書包",vocab:[["bag","包包"],["books","書"],["heavy","重的"]],text:["This is my school bag.","It is blue.","It is big.","I have three books.","I have two pens.","I have a lunch box.","My bag is heavy!"],quiz:[{q:"What color is the bag?",o:["Red","Blue","Green"],a:1},{q:"How many books?",o:["Two","Three","Four"],a:1},{q:"How is the bag?",o:["Light","Heavy","Small"],a:1}]},
+{title:"My Classroom",zh:"我的教室",vocab:[["classroom","教室"],["board","黑板"],["desk","桌子"]],text:["This is my classroom.","It is big and bright.","There are twenty desks.","There are twenty chairs.","The board is green.","The windows are big.","I like my classroom."],quiz:[{q:"How is the classroom?",o:["Small","Big","Dark"],a:1},{q:"How many desks?",o:["Ten","Twenty","Thirty"],a:1},{q:"What color is the board?",o:["Black","White","Green"],a:2}]},
+{title:"My Teacher",zh:"我的老師",vocab:[["teacher","老師"],["smart","聰明"],["English","英文"]],text:["My teacher is Ms. Chen.","She is kind and nice.","She is very smart.","She teaches us English.","She reads us stories.","She helps us learn.","I love my teacher."],quiz:[{q:"Who is the teacher?",o:["Mr. Chen","Ms. Chen","Ms. Wang"],a:1},{q:"What does she teach?",o:["Math","English","Music"],a:1},{q:"What does she read?",o:["Books","Stories","Newspapers"],a:1}]},
+{title:"My Desk",zh:"我的書桌",vocab:[["desk","書桌"],["pencil","鉛筆"],["eraser","橡皮擦"]],text:["This is my desk.","It is next to the window.","On my desk, I have a book.","I have two pencils.","I have a pink eraser.","My chair is under the desk.","I sit here every day."],quiz:[{q:"Where is the desk?",o:["Next to the door","Next to the window","In the middle"],a:1},{q:"How many pencils?",o:["One","Two","Three"],a:1},{q:"What color is the eraser?",o:["Pink","Red","White"],a:0}]},
+{title:"Math Class",zh:"數學課",vocab:[["math","數學"],["number","數字"],["easy","容易的"]],text:["I have math at nine.","I like math class.","We learn about numbers.","One plus one is two.","Two plus two is four.","Math is easy for me!","I get all the answers right."],quiz:[{q:"What time is math?",o:["Eight","Nine","Ten"],a:1},{q:"What is one plus one?",o:["Two","Three","Four"],a:0},{q:"How is math for the speaker?",o:["Hard","Boring","Easy"],a:2}]},
+{title:"English Class",zh:"英文課",vocab:[["English","英文"],["word","單字"],["song","歌"]],text:["I have English at ten.","We learn new words.","We sing English songs.","We speak English in class.","My teacher is Ms. White.","She is from Canada.","English class is fun!"],quiz:[{q:"What time is English?",o:["Nine","Ten","Eleven"],a:1},{q:"What do they do in class?",o:["Play games","Sing songs","Watch TV"],a:1},{q:"Where is Ms. White from?",o:["America","England","Canada"],a:2}]},
+{title:"Art Class",zh:"美術課",vocab:[["art","美術"],["paint","畫"],["picture","圖畫"]],text:["I love art class.","We draw and paint.","I paint a big blue ocean.","I paint a yellow sun.","I paint red fish.","My picture is beautiful!","I show it to Mom."],quiz:[{q:"What does the speaker paint?",o:["Ocean","Mountain","Sky"],a:0},{q:"What color is the sun?",o:["Red","Yellow","Blue"],a:1},{q:"Who does the speaker show?",o:["Dad","Mom","Teacher"],a:1}]},
+{title:"Music Class",zh:"音樂課",vocab:[["music","音樂"],["sing","唱"],["drums","鼓"]],text:["Music class is at two.","We sing many songs.","We learn about notes.","I play the drums.","My friend plays the piano.","Music makes me happy!","I want to be a singer."],quiz:[{q:"What does the speaker play?",o:["Piano","Guitar","Drums"],a:2},{q:"What does the friend play?",o:["Piano","Violin","Drums"],a:0},{q:"How does music make the speaker feel?",o:["Sad","Happy","Angry"],a:1}]},
+{title:"P.E. Class",zh:"體育課",vocab:[["run","跑"],["jump","跳"],["soccer","足球"]],text:["P.E. is my favorite class.","We go to the playground.","We run and jump.","We play with a ball.","Today we play soccer.","My team wins the game!","I am tired but happy."],quiz:[{q:"Where do they go?",o:["Library","Playground","Music room"],a:1},{q:"What do they play today?",o:["Basketball","Soccer","Tennis"],a:1},{q:"How does the speaker feel?",o:["Sad","Bored","Tired but happy"],a:2}]},
+{title:"Pencil and Eraser",zh:"鉛筆和橡皮擦",vocab:[["pencil","鉛筆"],["paper","紙"],["ruler","尺"]],text:["I have a yellow pencil.","I use it every day.","I have a pink eraser.","I have a ruler too.","I have some white paper.","I write letters and numbers.","I love to write!"],quiz:[{q:"What color is the pencil?",o:["Red","Blue","Yellow"],a:2},{q:"What color is the eraser?",o:["Pink","White","Blue"],a:0},{q:"What does the speaker love?",o:["To read","To write","To draw"],a:1}]},
+{title:"Numbers",zh:"數一數",vocab:[["count","數"],["ten","十"],["fingers","手指"]],text:["I can count.","One, two, three.","Four, five, six.","Seven, eight, nine.","Ten!","I have ten fingers.","I have ten toes."],quiz:[{q:"How many fingers?",o:["Eight","Nine","Ten"],a:2},{q:"How many toes?",o:["Eight","Nine","Ten"],a:2},{q:"What comes after six?",o:["Five","Seven","Eight"],a:1}]},
+{title:"My School Uniform",zh:"我的制服",vocab:[["uniform","制服"],["white","白"],["name tag","名牌"]],text:["I wear a uniform to school.","My shirt is white.","My pants are dark blue.","My socks are white too.","My shoes are black.","I have a red name tag.","I look neat and clean!"],quiz:[{q:"What color is the shirt?",o:["White","Blue","Red"],a:0},{q:"What color are the pants?",o:["Black","Dark blue","Gray"],a:1},{q:"What color is the name tag?",o:["Red","White","Blue"],a:0}]},
+{title:"Library Time",zh:"圖書館時間",vocab:[["library","圖書館"],["borrow","借"],["quiet","安靜"]],text:["On Fridays, we go to the library.","It is a big quiet room.","There are many books.","I like stories about animals.","I borrow two books today.","I read them at home.","I bring them back next week."],quiz:[{q:"When do they go?",o:["Mondays","Wednesdays","Fridays"],a:2},{q:"How is the library?",o:["Loud","Quiet","Cold"],a:1},{q:"How many books does the speaker borrow?",o:["One","Two","Three"],a:1}]},
+{title:"Recess",zh:"下課時間",vocab:[["recess","下課"],["outside","外面"],["friends","朋友"]],text:["After class, we have recess.","Recess is ten minutes.","We go outside.","I play with my friends.","We run around.","Some kids play tag.","Recess is the best time!"],quiz:[{q:"How long is recess?",o:["Five minutes","Ten minutes","Fifteen minutes"],a:1},{q:"Where do they go?",o:["Inside","Outside","To the library"],a:1},{q:"What is the best time?",o:["Class","Lunch","Recess"],a:2}]},
+// ===== 休閒與娛樂 =====
+{title:"My Toys",zh:"我的玩具",vocab:[["toys","玩具"],["doll","娃娃"],["soft","柔軟的"]],text:["I have many toys.","I have a red car.","I have a small doll.","I have three balls.","I like my toy bear.","His name is Tom.","Tom is soft."],quiz:[{q:"What color is the car?",o:["Red","Blue","Yellow"],a:0},{q:"How many balls?",o:["Two","Three","Four"],a:1},{q:"What is the bear's name?",o:["Tim","Tom","Sam"],a:1}]},
+{title:"At the Park",zh:"在公園",vocab:[["park","公園"],["sun","太陽"],["bike","腳踏車"]],text:["I go to the park.","The sun is warm.","I see many trees.","I see a dog.","I ride my bike.","I play with a ball.","The park is fun."],quiz:[{q:"Where does the speaker go?",o:["School","The park","A shop"],a:1},{q:"How is the sun?",o:["Cold","Hot","Warm"],a:2},{q:"What does the speaker ride?",o:["A bus","A bike","A car"],a:1}]},
+{title:"Weekend Fun",zh:"週末真好玩",vocab:[["Saturday","星期六"],["sleep","睡覺"],["pancakes","鬆餅"]],text:["Today is Saturday.","I do not go to school.","I sleep for a long time.","I eat pancakes.","I play with my dog.","I read a book.","Saturdays are fun!"],quiz:[{q:"What day is it?",o:["Friday","Saturday","Sunday"],a:1},{q:"Does the speaker go to school?",o:["Yes","No","Sometimes"],a:1},{q:"What does the speaker eat?",o:["Bread","Pancakes","Eggs"],a:1}]},
+{title:"At the Zoo",zh:"逛動物園",vocab:[["zoo","動物園"],["elephant","大象"],["panda","貓熊"]],text:["I go to the zoo.","I see a big elephant.","I see a tall giraffe.","I see two lions.","I see a small panda.","The panda eats bamboo.","The zoo is fun!"],quiz:[{q:"How is the elephant?",o:["Small","Big","Fast"],a:1},{q:"How many lions?",o:["One","Two","Three"],a:1},{q:"What does the panda eat?",o:["Grass","Bamboo","Fish"],a:1}]},
+{title:"Playing Soccer",zh:"踢足球",vocab:[["soccer","足球"],["team","隊伍"],["goal","進球"]],text:["I love soccer.","I play every Sunday.","My team wears blue shirts.","I run fast on the field.","I kick the ball hard.","Goal! I score!","My team is the best!"],quiz:[{q:"When does the speaker play?",o:["Saturday","Sunday","Monday"],a:1},{q:"What color are the shirts?",o:["Red","Blue","White"],a:1},{q:"Does the speaker score?",o:["Yes","No","Almost"],a:0}]},
+{title:"Riding a Bike",zh:"騎腳踏車",vocab:[["bike","腳踏車"],["helmet","安全帽"],["fast","快"]],text:["I have a new bike.","It is red and shiny.","I wear my helmet.","I ride in the park.","I ride fast.","The wind is in my hair.","Riding is so much fun!"],quiz:[{q:"What color is the bike?",o:["Blue","Red","Black"],a:1},{q:"What does the speaker wear?",o:["A hat","A helmet","Gloves"],a:1},{q:"Where does the speaker ride?",o:["The street","The park","School"],a:1}]},
+{title:"Swimming",zh:"游泳",vocab:[["swim","游泳"],["pool","泳池"],["cool","涼"]],text:["On hot days, I go swimming.","I go to a big pool.","The water is cool.","I swim like a fish.","I splash in the water.","I play with my friends.","Swimming is refreshing!"],quiz:[{q:"When does the speaker swim?",o:["Cold days","Hot days","Rainy days"],a:1},{q:"How is the water?",o:["Warm","Cool","Cold"],a:1},{q:"How does the speaker swim?",o:["Like a fish","Like a duck","Like a dog"],a:0}]},
+{title:"Movie Night",zh:"電影之夜",vocab:[["movie","電影"],["popcorn","爆米花"],["TV","電視"]],text:["Every Friday is movie night.","We stay home.","We turn on the TV.","Dad makes popcorn.","Mom brings some juice.","We watch a fun movie.","I love movie night!"],quiz:[{q:"When is movie night?",o:["Friday","Saturday","Sunday"],a:0},{q:"Who makes popcorn?",o:["Mom","Dad","Speaker"],a:1},{q:"What does Mom bring?",o:["Water","Soda","Juice"],a:2}]},
+{title:"I Love Music",zh:"我愛音樂",vocab:[["music","音樂"],["listen","聽"],["dance","跳舞"]],text:["I love music.","I listen every day.","I listen with my headphones.","I like pop songs.","When I hear music, I dance.","I sing along.","Music makes me smile!"],quiz:[{q:"How often does the speaker listen?",o:["Sometimes","Every day","Every week"],a:1},{q:"What kind of songs?",o:["Rock","Pop","Jazz"],a:1},{q:"What does music do?",o:["Makes speaker sleep","Makes speaker smile","Makes speaker cry"],a:1}]},
+{title:"Video Games",zh:"電玩遊戲",vocab:[["game","遊戲"],["win","贏"],["racing","賽車"]],text:["I like video games.","I play on weekends.","My mom says one hour only.","My favorite game is racing.","I play with my brother.","Sometimes I win.","Sometimes he wins!"],quiz:[{q:"When does the speaker play?",o:["Weekdays","Weekends","Every day"],a:1},{q:"How long can the speaker play?",o:["One hour","Two hours","All day"],a:0},{q:"Who does the speaker play with?",o:["Sister","Brother","Friend"],a:1}]},
+{title:"Chinese New Year",zh:"農曆新年",vocab:[["new year","新年"],["red envelope","紅包"],["dumplings","水餃"]],text:["Chinese New Year is coming!","I wear new red clothes.","We visit my grandparents.","Grandma gives me red envelopes.","We eat a big dinner.","There are dumplings and fish.","Happy New Year!"],quiz:[{q:"What color are the clothes?",o:["Blue","Red","Yellow"],a:1},{q:"Who gives red envelopes?",o:["Mom","Dad","Grandma"],a:2},{q:"What do they eat?",o:["Cake","Dumplings and fish","Chicken"],a:1}]},
+{title:"Mid-Autumn Festival",zh:"中秋節",vocab:[["moon","月亮"],["mooncake","月餅"],["round","圓的"]],text:["Tonight is Mid-Autumn Festival.","The moon is big and round.","We eat mooncakes.","They are sweet and yummy.","We sit outside.","We look at the moon.","It is a beautiful night."],quiz:[{q:"How is the moon?",o:["Small","Big and round","Half"],a:1},{q:"What do they eat?",o:["Rice","Mooncakes","Bread"],a:1},{q:"Where do they sit?",o:["Inside","Outside","At school"],a:1}]},
+{title:"Christmas Day",zh:"聖誕節",vocab:[["Christmas","聖誕節"],["tree","樹"],["gift","禮物"]],text:["Today is Christmas!","We have a big Christmas tree.","It has red and gold lights.","There are many gifts.","I open my gifts.","I get a new bike!","Merry Christmas!"],quiz:[{q:"What color are the lights?",o:["Red and gold","Blue and white","Green and red"],a:0},{q:"What does the speaker get?",o:["A book","A bike","A doll"],a:1},{q:"How does the speaker feel?",o:["Sad","Happy","Bored"],a:1}]},
+{title:"My Vacation",zh:"我的假期",vocab:[["vacation","假期"],["travel","旅遊"],["plane","飛機"]],text:["Summer vacation is here!","My family travels together.","We go to Japan by plane.","We stay for one week.","We see many temples.","We eat sushi and ramen.","I love vacation time!"],quiz:[{q:"When is this?",o:["Winter","Summer","Fall"],a:1},{q:"Where do they go?",o:["Korea","Japan","Thailand"],a:1},{q:"How do they travel?",o:["By car","By train","By plane"],a:2}]},
+{title:"At the Beach",zh:"在海邊",vocab:[["beach","海邊"],["sand","沙"],["shell","貝殼"]],text:["We go to the beach.","The sand is soft and warm.","The water is blue.","I find pretty shells.","I build a sand castle.","I swim with my dad.","Beach days are great!"],quiz:[{q:"How is the sand?",o:["Cold","Warm","Wet"],a:1},{q:"What does the speaker find?",o:["Rocks","Shells","Coins"],a:1},{q:"Who does the speaker swim with?",o:["Mom","Dad","Brother"],a:1}]},
+// ===== 飲食與健康 =====
+{title:"Fruits I Love",zh:"我愛的水果",vocab:[["fruits","水果"],["apple","蘋果"],["sweet","甜的"]],text:["I love fruits.","I like red apples.","I like yellow bananas.","I like small grapes.","Mom cuts an apple.","I eat it fast.","Fruits are sweet!"],quiz:[{q:"What color are the apples?",o:["Red","Yellow","Green"],a:0},{q:"What color are the bananas?",o:["Red","Yellow","Green"],a:1},{q:"How are the fruits?",o:["Sour","Salty","Sweet"],a:2}]},
+{title:"Vegetables",zh:"蔬菜",vocab:[["vegetables","蔬菜"],["carrot","紅蘿蔔"],["healthy","健康"]],text:["I eat vegetables every day.","I like carrots best.","They are orange and sweet.","I eat green broccoli.","I eat red tomatoes too.","Vegetables make me strong.","They are good for me!"],quiz:[{q:"What is the favorite vegetable?",o:["Broccoli","Carrots","Tomatoes"],a:1},{q:"What color is broccoli?",o:["Red","Orange","Green"],a:2},{q:"What do vegetables do?",o:["Make you tall","Make you strong","Make you fast"],a:1}]},
+{title:"Meat and Fish",zh:"肉和魚",vocab:[["meat","肉"],["chicken","雞肉"],["fish","魚"]],text:["For dinner, we eat meat.","I like chicken.","Mom cooks it with rice.","I like fish too.","Fish is good for my brain.","I eat meat and vegetables.","Yummy dinner!"],quiz:[{q:"What meat does the speaker like?",o:["Beef","Chicken","Pork"],a:1},{q:"What is fish good for?",o:["Bones","Eyes","Brain"],a:2},{q:"What does Mom cook it with?",o:["Bread","Rice","Noodles"],a:1}]},
+{title:"Sweet Snacks",zh:"甜點心",vocab:[["snack","點心"],["candy","糖果"],["chocolate","巧克力"]],text:["I love sweet snacks.","I like chocolate.","I like candy too.","But Mom says only sometimes.","Too much sugar is bad.","I eat one piece a day.","That is enough for me."],quiz:[{q:"What does the speaker like?",o:["Sweet snacks","Salty snacks","Sour snacks"],a:0},{q:"How often can the speaker have it?",o:["Every meal","One piece a day","Only weekends"],a:1},{q:"Why does Mom say no?",o:["Too much sugar","Too expensive","Not tasty"],a:0}]},
+{title:"Water",zh:"喝水",vocab:[["water","水"],["drink","喝"],["thirsty","口渴"]],text:["Water is the best drink.","I drink water every day.","I drink eight cups.","When I am thirsty, I drink water.","Water is good for my body.","It has no sugar.","Drink more water!"],quiz:[{q:"How many cups a day?",o:["Six","Seven","Eight"],a:2},{q:"When does the speaker drink water?",o:["When hungry","When thirsty","When sad"],a:1},{q:"Does water have sugar?",o:["Yes","No","A little"],a:1}]},
+{title:"Rice and Noodles",zh:"米飯和麵條",vocab:[["rice","米飯"],["noodles","麵條"],["chopsticks","筷子"]],text:["We eat rice at dinner.","I have a big bowl.","Rice is white and warm.","For lunch, I like noodles.","They are long and yummy.","I use chopsticks.","I love Chinese food!"],quiz:[{q:"What color is the rice?",o:["Brown","White","Yellow"],a:1},{q:"When does the speaker eat noodles?",o:["Breakfast","Lunch","Dinner"],a:1},{q:"What does the speaker use?",o:["Fork","Spoon","Chopsticks"],a:2}]},
+{title:"At the Restaurant",zh:"在餐廳",vocab:[["restaurant","餐廳"],["menu","菜單"],["waiter","服務生"]],text:["We go to a restaurant.","A waiter gives us a menu.","Mom orders soup.","Dad orders steak.","I order noodles.","The food is delicious!","Dad pays the bill."],quiz:[{q:"What does the waiter give?",o:["Water","Menu","Food"],a:1},{q:"What does Mom order?",o:["Soup","Steak","Noodles"],a:0},{q:"What does the speaker order?",o:["Soup","Steak","Noodles"],a:2}]},
+{title:"Ordering Food",zh:"點餐",vocab:[["order","點餐"],["please","請"],["thank you","謝謝"]],text:["Excuse me!","I would like some rice, please.","I would like some chicken.","I would like a cup of tea.","Can I have some water?","Thank you very much.","The food is here!"],quiz:[{q:"What does the speaker order to drink?",o:["Coffee","Tea","Juice"],a:1},{q:"What does the speaker order?",o:["Rice and chicken","Rice and fish","Noodles"],a:0},{q:"How is the speaker?",o:["Rude","Polite","Angry"],a:1}]},
+{title:"I Have a Cold",zh:"我感冒了",vocab:[["cold","感冒"],["nose","鼻子"],["cough","咳嗽"]],text:["I do not feel good.","I have a cold.","My nose is runny.","I cough a lot.","My head hurts.","I stay in bed.","I drink hot tea and rest."],quiz:[{q:"How does the speaker feel?",o:["Good","Not good","Great"],a:1},{q:"What is runny?",o:["Eyes","Nose","Mouth"],a:1},{q:"What does the speaker do?",o:["Play","Rest","Study"],a:1}]},
+{title:"Fever",zh:"發燒",vocab:[["fever","發燒"],["hot","熱"],["rest","休息"]],text:["I do not feel well.","My body is very hot.","Mom checks my head.","She says I have a fever.","She gives me cool water.","I lie down in bed.","I hope I feel better soon."],quiz:[{q:"How is the speaker's body?",o:["Cold","Warm","Hot"],a:2},{q:"What does Mom check?",o:["Head","Feet","Hands"],a:0},{q:"What does Mom give?",o:["Hot tea","Cool water","Juice"],a:1}]},
+{title:"At the Doctor",zh:"看醫生",vocab:[["doctor","醫生"],["ear","耳朵"],["mouth","嘴巴"]],text:["I go to see the doctor.","He is a nice man.","He looks in my ear.","He looks in my mouth.","He says, say ah!","He gives me some medicine.","He tells me to rest."],quiz:[{q:"How is the doctor?",o:["Mean","Nice","Old"],a:1},{q:"What does he look at?",o:["Eyes","Ear and mouth","Nose"],a:1},{q:"What does he give?",o:["Candy","Medicine","A toy"],a:1}]},
+{title:"Taking Medicine",zh:"吃藥",vocab:[["medicine","藥"],["spoon","湯匙"],["better","好一點"]],text:["I take medicine when I am sick.","Mom gives me a spoon.","The medicine is not tasty.","But it makes me better.","I take it three times a day.","I drink water after.","Soon I will feel great!"],quiz:[{q:"When does the speaker take it?",o:["Every day","When sick","Every night"],a:1},{q:"How is the medicine?",o:["Yummy","Not tasty","Sweet"],a:1},{q:"How many times a day?",o:["Two","Three","Four"],a:1}]},
+{title:"Wash Your Hands",zh:"洗手",vocab:[["wash","洗"],["hands","手"],["seconds","秒"]],text:["Wash your hands often!","Before you eat, wash your hands.","After you play, wash your hands.","Use warm water.","Use some soap.","Rub for twenty seconds.","Now your hands are clean!"],quiz:[{q:"When do you wash hands?",o:["Before eating","After sleeping","During class"],a:0},{q:"What kind of water?",o:["Cold","Warm","Hot"],a:1},{q:"For how long?",o:["Ten seconds","Twenty seconds","One minute"],a:1}]},
+{title:"Brushing My Teeth",zh:"刷牙",vocab:[["brush","刷"],["teeth","牙齒"],["toothpaste","牙膏"]],text:["I brush my teeth two times a day.","I brush in the morning.","I brush before bed.","I use blue toothpaste.","I brush for two minutes.","I rinse my mouth.","My teeth are white and clean!"],quiz:[{q:"How many times a day?",o:["One","Two","Three"],a:1},{q:"What color is the toothpaste?",o:["Red","White","Blue"],a:2},{q:"For how long?",o:["One minute","Two minutes","Five minutes"],a:1}]},
+{title:"Healthy Me",zh:"健康的我",vocab:[["healthy","健康"],["exercise","運動"],["sleep","睡覺"]],text:["I want to be healthy.","I eat fruits and vegetables.","I drink lots of water.","I exercise every day.","I sleep eight hours a night.","I wash my hands often.","A healthy body is a happy body!"],quiz:[{q:"What does the speaker eat?",o:["Fruits and vegetables","Candy and cake","Meat only"],a:0},{q:"How often does the speaker exercise?",o:["Every day","Every week","Sometimes"],a:0},{q:"How many hours of sleep?",o:["Six","Seven","Eight"],a:2}]},
+// ===== 購物與交通 =====
+{title:"At the Shop",zh:"在商店",vocab:[["shop","商店"],["buy","買"],["bread","麵包"]],text:["Mom and I go to the shop.","We need to buy some food.","We get milk and bread.","We get eggs and cheese.","We get some apples too.","We pay at the counter.","Now we have food for the week."],quiz:[{q:"Where do they go?",o:["The park","The shop","The bank"],a:1},{q:"What do they buy?",o:["Toys","Food","Clothes"],a:1},{q:"How long will the food last?",o:["A day","A week","A month"],a:1}]},
+{title:"How Much?",zh:"多少錢?",vocab:[["how much","多少錢"],["dollar","元"],["change","找零"]],text:["How much is this apple?","It is one dollar.","How much is this bread?","It is three dollars.","How much are five bananas?","They are two dollars.","Here is ten dollars.","You get four dollars back."],quiz:[{q:"How much is one apple?",o:["One dollar","Two dollars","Three dollars"],a:0},{q:"How much is the bread?",o:["Two dollars","Three dollars","Four dollars"],a:1},{q:"How much change?",o:["Two dollars","Three dollars","Four dollars"],a:2}]},
+{title:"Buying a Toy",zh:"買玩具",vocab:[["toy shop","玩具店"],["robot","機器人"],["save","存錢"]],text:["I go to the toy shop.","I see a big robot.","I really want it!","How much is it?","It is fifty dollars.","I have thirty dollars.","I will save more money.","Then I can buy it!"],quiz:[{q:"What does the speaker see?",o:["A doll","A robot","A ball"],a:1},{q:"How much is it?",o:["Thirty","Forty","Fifty"],a:2},{q:"How much does the speaker have?",o:["Twenty","Thirty","Fifty"],a:1}]},
+{title:"Buying Bread",zh:"買麵包",vocab:[["bakery","麵包店"],["fresh","新鮮"],["loaf","條(麵包)"]],text:["I go to the bakery.","The bread smells so good!","I buy a loaf of bread.","I buy two sweet buns.","The bread is warm and fresh.","It costs six dollars.","I can not wait to eat it!"],quiz:[{q:"Where does the speaker go?",o:["Toy shop","Bakery","Supermarket"],a:1},{q:"How many buns?",o:["One","Two","Three"],a:1},{q:"How much does it cost?",o:["Five","Six","Seven"],a:1}]},
+{title:"Taking the Bus",zh:"搭公車",vocab:[["bus","公車"],["bus stop","公車站"],["seat","座位"]],text:["I take the bus to school.","I wait at the bus stop.","The bus comes at seven.","I get on the bus.","I find a seat.","I sit near the window.","The ride is fifteen minutes."],quiz:[{q:"Where does the speaker wait?",o:["Home","Bus stop","School"],a:1},{q:"What time does the bus come?",o:["Six","Seven","Eight"],a:1},{q:"Where does the speaker sit?",o:["Near the door","Near the driver","Near the window"],a:2}]},
+{title:"Taking the MRT",zh:"搭捷運",vocab:[["MRT","捷運"],["ticket","車票"],["station","車站"]],text:["We take the MRT to the zoo.","First, we buy tickets.","Then we go into the station.","The train comes fast.","We get on the train.","We hold on to the pole.","After five stops, we get off."],quiz:[{q:"What do they buy first?",o:["Snacks","Tickets","Water"],a:1},{q:"How do they hold on?",o:["To a pole","To a chair","To a bag"],a:0},{q:"How many stops?",o:["Three","Four","Five"],a:2}]},
+{title:"Where Is the Park?",zh:"公園在哪裡?",vocab:[["where","哪裡"],["straight","直走"],["block","街區"]],text:["Excuse me, where is the park?","Go straight on this street.","Walk two blocks.","You will see a big tree.","The park is on the right.","It is next to a school.","Thank you very much!"],quiz:[{q:"What does the speaker ask about?",o:["The park","The school","The store"],a:0},{q:"How many blocks?",o:["One","Two","Three"],a:1},{q:"What is next to the park?",o:["A tree","A school","A store"],a:1}]},
+{title:"Turn Left",zh:"左轉",vocab:[["left","左"],["right","右"],["door","門"]],text:["Excuse me, where is the library?","Go straight ahead.","Then turn left at the light.","Walk one more block.","Turn right at the bakery.","The library is right there.","It has a big red door."],quiz:[{q:"Which way at the light?",o:["Left","Right","Straight"],a:0},{q:"Which way at the bakery?",o:["Left","Right","Straight"],a:1},{q:"What color is the door?",o:["Blue","Green","Red"],a:2}]},
+{title:"In a Car",zh:"坐車",vocab:[["car","汽車"],["seatbelt","安全帶"],["drive","開車"]],text:["My dad drives me to school.","I get in the car.","I sit in the back.","I put on my seatbelt.","Dad drives carefully.","We talk and laugh.","Soon we are at school."],quiz:[{q:"Who drives?",o:["Mom","Dad","Brother"],a:1},{q:"Where does the speaker sit?",o:["Front","Back","Middle"],a:1},{q:"What does the speaker put on?",o:["Hat","Seatbelt","Coat"],a:1}]},
+{title:"Walking to School",zh:"走路上學",vocab:[["walk","走路"],["road","路"],["neighbor","鄰居"]],text:["I walk to school every morning.","My friend walks with me.","We take the same road.","We see many trees.","We see cats and dogs.","We say hello to neighbors.","Walking is good exercise!"],quiz:[{q:"When does the speaker walk?",o:["Every morning","Every night","Sometimes"],a:0},{q:"Who walks with the speaker?",o:["Sister","Brother","Friend"],a:2},{q:"What do they say to neighbors?",o:["Bye","Hello","Good night"],a:1}]},
+// ===== 社交與溝通 =====
+{title:"Hello and Goodbye",zh:"打招呼與道別",vocab:[["hello","你好"],["goodbye","再見"],["fine","很好"]],text:["I meet my friends every day.","I say hello with a smile.","How are you?","I am fine, thanks!","When school ends, I say goodbye.","See you tomorrow!","Have a good day!"],quiz:[{q:"What does the speaker say first?",o:["Bye","Hello","Sorry"],a:1},{q:"How is the speaker?",o:["Tired","Fine","Bored"],a:1},{q:"When does the speaker say goodbye?",o:["Morning","When school ends","Night"],a:1}]},
+{title:"Thank You",zh:"謝謝",vocab:[["thank you","謝謝"],["welcome","不客氣"],["help","幫忙"]],text:["My friend helps me with homework.","I say thank you.","He says you are welcome.","Mom cooks a nice dinner.","I say thank you, Mom!","She smiles at me.","Saying thank you is easy!"],quiz:[{q:"Who helps the speaker?",o:["Sister","Friend","Teacher"],a:1},{q:"What does the friend say?",o:["No problem","You are welcome","Bye"],a:1},{q:"How does Mom react?",o:["Cries","Smiles","Shouts"],a:1}]},
+{title:"I am Sorry",zh:"對不起",vocab:[["sorry","對不起"],["okay","沒關係"],["cup","杯子"]],text:["Oh no, I break Mom's cup!","I feel bad.","I go to Mom.","I say, I am sorry, Mom.","Mom hugs me.","She says, it is okay.","Next time be careful!"],quiz:[{q:"What does the speaker break?",o:["A plate","A cup","A window"],a:1},{q:"What does the speaker say?",o:["I am sad","I am sorry","I am happy"],a:1},{q:"What does Mom say?",o:["Bad boy","It is okay","Go to your room"],a:1}]},
+{title:"On the Phone",zh:"電話禮儀",vocab:[["phone","電話"],["call","打電話"],["message","留言"]],text:["The phone rings.","I pick up the phone.","Hello? This is Lily.","May I speak to Dad?","He is not home now.","Can I take a message?","Please call back at six."],quiz:[{q:"What is the speaker's name?",o:["Lisa","Lily","Lucy"],a:1},{q:"Who does the caller want?",o:["Mom","Dad","Sister"],a:1},{q:"When to call back?",o:["Five","Six","Seven"],a:1}]},
+{title:"Come to My Party",zh:"來我的派對",vocab:[["party","派對"],["invite","邀請"],["cake","蛋糕"]],text:["I am having a party!","It is my birthday.","Can you come?","It is on Saturday.","It starts at three.","Come to my house.","There will be cake and games!"],quiz:[{q:"What kind of party?",o:["Birthday","Christmas","Halloween"],a:0},{q:"When is it?",o:["Friday","Saturday","Sunday"],a:1},{q:"What time?",o:["Two","Three","Four"],a:1}]},
+{title:"My Best Friend",zh:"我最好的朋友",vocab:[["friend","朋友"],["hair","頭髮"],["draw","畫畫"]],text:["Her name is Amy.","She is nine.","She has long hair.","Her eyes are big.","She likes to draw.","She likes cats.","We are best friends."],quiz:[{q:"What is the friend's name?",o:["Amy","Anna","Emma"],a:0},{q:"How old is she?",o:["Eight","Nine","Ten"],a:1},{q:"What does she like?",o:["Dogs","Cats","Birds"],a:1}]},
+{title:"Happy Birthday",zh:"生日快樂",vocab:[["birthday","生日"],["cake","蛋糕"],["candles","蠟燭"]],text:["Today is my birthday.","I am nine years old.","I have a big cake.","The cake is chocolate.","I have nine candles.","My friends come.","We eat and play."],quiz:[{q:"How old is the speaker now?",o:["Eight","Nine","Ten"],a:1},{q:"What kind of cake?",o:["Vanilla","Chocolate","Strawberry"],a:1},{q:"How many candles?",o:["Eight","Nine","Ten"],a:1}]},
+{title:"A Note for Mom",zh:"給媽媽的留言",vocab:[["note","便條"],["write","寫"],["home","家"]],text:["I write a note for Mom.","Dear Mom,","I am at Sam's house.","We are studying together.","I will come home at five.","Please do not worry.","Love, Lily."],quiz:[{q:"Whose note is this?",o:["Dad","Mom","Sam"],a:1},{q:"Where is the speaker?",o:["School","Sam's house","The park"],a:1},{q:"When will the speaker come home?",o:["Four","Five","Six"],a:1}]},
+{title:"My New Friend",zh:"新朋友",vocab:[["new","新的"],["meet","遇見"],["share","分享"]],text:["Today I meet a new friend.","Her name is Sara.","She is a new student.","She is nice and kind.","We sit together at lunch.","We share our snacks.","I hope we become good friends!"],quiz:[{q:"What is her name?",o:["Sara","Sandy","Sam"],a:0},{q:"Is she a student?",o:["Yes","No","She's a teacher"],a:0},{q:"What do they share?",o:["Books","Snacks","Toys"],a:1}]},
+{title:"Good Night",zh:"晚安",vocab:[["good night","晚安"],["sweet dreams","好夢"],["close","閉上"]],text:["It is time for bed.","I say good night to everyone.","Good night, Mom!","Good night, Dad!","Good night, brother!","I close my eyes.","Sweet dreams to me!"],quiz:[{q:"What time is it?",o:["Time to play","Time for bed","Time for dinner"],a:1},{q:"Who does the speaker say good night to?",o:["Only Mom","Everyone","Only Dad"],a:1},{q:"What does the speaker want?",o:["A snack","Sweet dreams","A story"],a:1}]}
+];
+
+// 每一課用哪個聲音:"f" 女聲,"m" 男聲 (男女交替:偶數位女聲、奇數位男聲)
+// 想改哪一課換聲音,直接改陣列裡對應位置的 f/m 就好
+var LESSON_VOICES = ["f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m","f","m"];
+
+// 課程分類 (0-based 課號)
+var CATEGORIES = [
+  {name:"個人與家庭", startId:0,  endId:14, emoji:"👨‍👩‍👧"},
+  {name:"日常生活",   startId:15, endId:34, emoji:"🌅"},
+  {name:"學校與學習", startId:35, endId:49, emoji:"🎒"},
+  {name:"休閒與娛樂", startId:50, endId:64, emoji:"⚽"},
+  {name:"飲食與健康", startId:65, endId:79, emoji:"🥗"},
+  {name:"購物與交通", startId:80, endId:89, emoji:"🚌"},
+  {name:"社交與溝通", startId:90, endId:99, emoji:"💬"}
+];
+
+/* ================= 排課引擎 ================= */
+var INTERVAL_DAYS = [1, 2, 3, 7, 14, 30];   // 掌握度 0~5 對應下次複習間隔
+var MASTERED = 5;
+
+function dateKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function todayKey(){ return dateKey(new Date()); }
+
+function updateMastery(id, score, total){
+  var cur = state.progress.lessons[id] || { mastery: 0 };
+  if(score === total){ cur.mastery = Math.min(MASTERED, cur.mastery + 1); }
+  else if(score < 2){ cur.mastery = Math.max(0, cur.mastery - 1); }
+  var days = INTERVAL_DAYS[Math.min(cur.mastery, 5)];
+  var next = new Date(); next.setDate(next.getDate() + days);
+  cur.lastDate = todayKey();
+  cur.nextDate = dateKey(next);
+  state.progress.lessons[id] = cur;
+}
+
+function pickToday(){
+  var today = todayKey();
+  var review = [];
+  for(var id in state.progress.lessons){
+    var L = state.progress.lessons[id];
+    if(L.mastery < MASTERED && L.nextDate <= today){
+      review.push({ id: parseInt(id), mastery: L.mastery, nextDate: L.nextDate });
+    }
+  }
+  if(review.length > 0){
+    review.sort(function(a,b){
+      if(a.mastery !== b.mastery) return a.mastery - b.mastery;
+      return a.nextDate.localeCompare(b.nextDate);
+    });
+    return { type:"review", id: review[0].id };
+  }
+  for(var i = 0; i < LESSONS.length; i++){
+    if(!state.progress.lessons[i]) return { type:"new", id: i };
+  }
+  var minId = 0, minDate = null;
+  for(var id in state.progress.lessons){
+    var L = state.progress.lessons[id];
+    if(!minDate || L.nextDate < minDate){ minDate = L.nextDate; minId = parseInt(id); }
+  }
+  return { type:"future", id: minId };
+}
+
+/* ================= 狀態 ================= */
+var state = {
+  view: "home",
+  currentId: 0,
+  currentType: "new",
+  step: 0,
+  qIndex: 0,
+  score: 0,
+  answered: false,
+  playedOnce: false,
+  rate: 1.0,
+  playing: false,
+  progress: {
+    lessons: {},
+    lastPracticeDate: null,
+    streak: 0
+  }
+};
+
+/* ================= 儲存 ================= */
+async function loadProgress(){
+  try{
+    if(window.storage){
+      var r = await window.storage.get("listen-progress-v3");
+      if(r && r.value){ state.progress = JSON.parse(r.value); }
+    }else{
+      var raw = localStorage.getItem("listen-progress-v3");
+      if(raw) state.progress = JSON.parse(raw);
+    }
+  }catch(e){ /* 第一次使用 */ }
+}
+async function saveProgress(){
+  try{
+    if(window.storage){
+      await window.storage.set("listen-progress-v3", JSON.stringify(state.progress));
+    }else{
+      localStorage.setItem("listen-progress-v3", JSON.stringify(state.progress));
+    }
+  }catch(e){ console.log("save failed", e); }
+}
+function calcStreak(){
+  var last = state.progress.lastPracticeDate;
+  if(!last) return 0;
+  var todayK = todayKey();
+  if(last !== todayK){
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    if(last !== dateKey(y)) return 0;
+  }
+  var practiceDates = {};
+  for(var id in state.progress.lessons){
+    practiceDates[state.progress.lessons[id].lastDate] = true;
+  }
+  var n = 0; var d = new Date(last);
+  while(true){
+    var k = dateKey(d);
+    if(practiceDates[k]){ n++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return n;
+}
+
+/* ================= TTS ================= */
+var enVoiceF = null, enVoiceM = null;
+function pickVoice(){
+  var vs = speechSynthesis.getVoices();
+  if(!vs || !vs.length) return;
+  // 女聲候選(依偏好順序):macOS/iOS 常見 Samantha、Karen;Chrome/Android 常見 Google UK English Female
+  var preferF = ["Samantha","Karen","Victoria","Susan","Moira","Tessa","Google UK English Female","Google US English"];
+  // 男聲候選:macOS 常見 Daniel、Alex、Fred;Chrome 常見 Google UK English Male
+  var preferM = ["Daniel","Alex","Fred","Tom","Aaron","Google UK English Male","Google US English Male"];
+  for(var i=0;i<preferF.length && !enVoiceF;i++){
+    for(var j=0;j<vs.length;j++){
+      if(vs[j].name.indexOf(preferF[i]) !== -1){ enVoiceF = vs[j]; break; }
+    }
+  }
+  for(var i=0;i<preferM.length && !enVoiceM;i++){
+    for(var j=0;j<vs.length;j++){
+      if(vs[j].name.indexOf(preferM[i]) !== -1){ enVoiceM = vs[j]; break; }
+    }
+  }
+  // 備用:找不到專屬性別的聲音就用第一個英文聲音頂替(避免完全沒聲)
+  for(var j=0;j<vs.length && (!enVoiceF || !enVoiceM);j++){
+    if(vs[j].lang && vs[j].lang.indexOf("en") === 0){
+      if(!enVoiceF) enVoiceF = vs[j];
+      if(!enVoiceM) enVoiceM = vs[j];
+    }
+  }
+}
+if("speechSynthesis" in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}else{
+  document.getElementById("ttsWarn").classList.remove("hidden");
+}
+setTimeout(function(){
+  if("speechSynthesis" in window && !enVoiceF && !enVoiceM && speechSynthesis.getVoices().length === 0){
+    document.getElementById("ttsWarn").classList.remove("hidden");
+  }
+}, 2500);
+
+function speakWord(w, voiceType){
+  stopSpeak();
+  var u = new SpeechSynthesisUtterance(w);
+  u.lang = "en-US"; u.rate = 0.9;
+  var v = (voiceType === "m") ? enVoiceM : enVoiceF;
+  if(v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+var speakQueue = [], speaking = false;
+function speakPassage(sentences, onDone, voiceType){
+  stopSpeak();
+  speakQueue = sentences.slice();
+  speaking = true;
+  state.playing = true;
+  updatePlayUI();
+  var v = (voiceType === "m") ? enVoiceM : enVoiceF;
+  function next(){
+    if(!speaking || speakQueue.length === 0){
+      speaking = false; state.playing = false;
+      updatePlayUI();
+      if(onDone && speakQueue.length === 0) onDone();
+      return;
+    }
+    var s = speakQueue.shift();
+    var u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = state.rate;
+    if(v) u.voice = v;
+    u.onend = function(){ setTimeout(next, 350); };
+    u.onerror = function(){ setTimeout(next, 350); };
+    speechSynthesis.speak(u);
+  }
+  next();
+}
+function stopSpeak(){
+  speaking = false; speakQueue = [];
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  state.playing = false;
+  updatePlayUI();
+}
+function updatePlayUI(){
+  var wrap = document.getElementById("playwrap");
+  var btn = document.getElementById("playbtn");
+  if(!wrap || !btn) return;
+  if(state.playing){ wrap.classList.add("playing"); btn.textContent = "⏸"; }
+  else{ wrap.classList.remove("playing"); btn.textContent = "▶"; }
+}
+
+/* ================= 畫面 ================= */
+function h(html){ document.getElementById("screen").innerHTML = html; }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+function renderDash(){
+  var learned = 0, mastered = 0;
+  for(var id in state.progress.lessons){
+    learned++;
+    if(state.progress.lessons[id].mastery >= MASTERED) mastered++;
+  }
+  var total = LESSONS.length;
+  var pct = Math.round((learned / total) * 100);
+  document.getElementById("dash").innerHTML =
+    '<div class="col"><div class="num">' + learned + '/' + total + '</div><div class="lbl">已學課程</div></div>' +
+    '<div class="pbar"><span style="width:' + pct + '%"></span></div>' +
+    '<div class="col"><div class="num" style="color:var(--mint)">' + mastered + '</div><div class="lbl">已掌握</div></div>';
+  document.getElementById("streakNum").textContent = state.progress.streak || 0;
+}
+
+function renderHome(){
+  state.view = "home";
+  renderDash();
+  var today = todayKey();
+  var alreadyDoneToday = (state.progress.lastPracticeDate === today);
+  var pick = pickToday();
+  var L = LESSONS[pick.id];
+
+  var todayCard;
+  if(alreadyDoneToday){
+    todayCard =
+      '<div class="card donecard">' +
+      '<div class="emoji">🎉</div>' +
+      '<h2>今天的練習完成了！</h2>' +
+      '<div class="sub">連續 ' + (state.progress.streak || 1) + ' 天,超厲害!明天記得再回來喔 🌟</div>' +
+      '<button class="btn ghost" onclick="startLesson(' + pick.id + ',\'free\')">想再多聽一課 →</button>' +
+      '</div>';
+  }else{
+    var badgeText, badgeClass, eyebrow;
+    if(pick.type === "new"){
+      badgeText = "新課程"; badgeClass = "new"; eyebrow = "TODAY · 今天的新課";
+    }else if(pick.type === "review"){
+      var m = state.progress.lessons[pick.id].mastery;
+      var stars = "★".repeat(m) + "☆".repeat(MASTERED - m);
+      badgeText = "複習 " + stars; badgeClass = "review"; eyebrow = "TODAY · 今天該複習";
+    }else{
+      badgeText = "自由練習"; badgeClass = "review"; eyebrow = "TODAY · 加碼練習";
+    }
+    var voiceIcon = (LESSON_VOICES[pick.id] === "f") ? "👧 女聲" : "👦 男聲";
+    todayCard =
+      '<div class="card">' +
+      '<div class="eyebrow">' + eyebrow + '</div>' +
+      '<span class="badge ' + badgeClass + '">' + badgeText + '</span>' +
+      '<h2 class="en">' + L.title + '</h2>' +
+      '<div class="sub">' + L.zh + '｜' + voiceIcon + '｜四個步驟大約 2 分鐘</div>' +
+      '<button class="btn sun" onclick="startLesson(' + pick.id + ',\'' + pick.type + '\')">開始今日練習 🎧</button>' +
+      '</div>';
+  }
+
+  var mapHTML = '';
+  for(var c = 0; c < CATEGORIES.length; c++){
+    var cat = CATEGORIES[c];
+    var catLearned = 0, catMastered = 0;
+    for(var k = cat.startId; k <= cat.endId; k++){
+      if(state.progress.lessons[k]){
+        catLearned++;
+        if(state.progress.lessons[k].mastery >= MASTERED) catMastered++;
+      }
+    }
+    var catTotal = cat.endId - cat.startId + 1;
+    mapHTML += '<div class="map-cat-title">' +
+               '<span class="cat-emoji">' + cat.emoji + '</span>' + cat.name +
+               '<span class="cat-count">' + catLearned + ' / ' + catTotal + '</span>' +
+               '</div><div class="map">';
+    for(var i = cat.startId; i <= cat.endId; i++){
+      var cls = "map-cell";
+      var stars = "";
+      if(state.progress.lessons[i]){
+        var m = state.progress.lessons[i].mastery;
+        var nd = state.progress.lessons[i].nextDate;
+        if(m >= MASTERED) cls += " mastered";
+        else if(nd <= today) cls += " due";
+        stars = "★".repeat(m) + "☆".repeat(MASTERED - m);
+      }else{
+        cls += " new";
+        stars = "☆☆☆☆☆";
+      }
+      var voiceIcon = (LESSON_VOICES[i] === "f") ? "👧" : "👦";
+      mapHTML +=
+        '<div class="' + cls + '" onclick="startLesson(' + i + ',\'free\')">' +
+        '<div class="n">' + (i+1) + ' ' + voiceIcon + '</div>' +
+        '<div class="stars">' + stars + '</div>' +
+        '<div class="zh">' + LESSONS[i].zh + '</div>' +
+        '</div>';
+    }
+    mapHTML += '</div>';
+  }
+
+  h(todayCard +
+    '<div class="map-title" style="margin-top:22px"><span>所有課程 (' + LESSONS.length + ')</span><span style="font-size:11px">★ 掌握度</span></div>' +
+    mapHTML);
+}
+
+function startLesson(id, type){
+  stopSpeak();
+  state.currentId = id;
+  state.currentType = type;
+  state.view = "lesson";
+  state.step = 0; state.qIndex = 0; state.score = 0; state.playedOnce = false;
+  renderStep();
+}
+
+function stepBar(on){
+  var s = "";
+  for(var i=0;i<4;i++) s += '<span class="' + (i<=on?"on":"") + '"></span>';
+  return '<div class="stepbar">' + s + '</div>';
+}
+
+function renderStep(){
+  var L = LESSONS[state.currentId];
+  if(state.step === 0){
+    var v = "";
+    var vv = LESSON_VOICES[state.currentId];
+    for(var i=0;i<L.vocab.length;i++){
+      v += '<div class="vword"><div><div class="w en">' + L.vocab[i][0] + '</div>' +
+           '<div class="zh">' + L.vocab[i][1] + '</div></div>' +
+           '<button onclick="speakWord(\'' + L.vocab[i][0] + '\',\'' + vv + '\')" aria-label="播放單字">🔊</button></div>';
+    }
+    h(stepBar(0) +
+      '<div class="card">' +
+      '<div class="eyebrow">STEP 1 · 單字預習</div>' +
+      '<h2 class="en">' + L.title + '</h2>' +
+      '<div class="sub">' + L.zh + '｜按 🔊 聽單字發音</div>' +
+      '<div class="vocab">' + v + '</div>' +
+      '<button class="btn primary" onclick="goStep(1)">我準備好了,開始聽 🎧</button>' +
+      '<button class="btn ghost" onclick="backHome()">← 回到首頁</button>' +
+      '</div>');
+  }
+  else if(state.step === 1){
+    h(stepBar(1) +
+      '<div class="card">' +
+      '<div class="eyebrow">STEP 2 · 仔細聽</div>' +
+      '<h2 class="en">' + L.title + '</h2>' +
+      '<div class="sub">聽不懂沒關係,可以再聽一次</div>' +
+      '<div class="stage">' +
+      '<div class="playwrap" id="playwrap">' +
+      '<div class="ring"></div><div class="ring"></div><div class="ring"></div>' +
+      '<button class="playbtn" id="playbtn" onclick="togglePlay()" aria-label="播放">▶</button>' +
+      '</div>' +
+      '<div class="speed">' +
+      '<button id="sp1" class="' + (state.rate===0.8?"on":"") + '" onclick="setRate(0.8)">🐢 慢速</button>' +
+      '<button id="sp2" class="' + (state.rate===1.0?"on":"") + '" onclick="setRate(1.0)">🐇 正常</button>' +
+      '</div>' +
+      '<div class="listen-hint" id="listenHint">按黃色按鈕開始播放</div>' +
+      '</div>' +
+      '<button class="btn primary" id="toQuiz" onclick="goStep(2)" ' + (state.playedOnce?"":"disabled") + '>聽完了,去挑戰題目 ✏️</button>' +
+      '</div>');
+  }
+  else if(state.step === 2){
+    renderQuestion();
+  }
+  else{
+    renderResult();
+  }
+}
+function goStep(n){
+  stopSpeak();
+  state.step = n;
+  if(n === 2){ state.qIndex = 0; state.score = 0; }
+  renderStep();
+}
+function setRate(r){
+  state.rate = r;
+  var s1 = document.getElementById("sp1"), s2 = document.getElementById("sp2");
+  if(s1) s1.className = (r===0.8)?"on":"";
+  if(s2) s2.className = (r===1.0)?"on":"";
+}
+function togglePlay(){
+  if(state.playing){ stopSpeak(); return; }
+  var L = LESSONS[state.currentId];
+  var hint = document.getElementById("listenHint");
+  if(hint) hint.textContent = "正在播放… 再按一次可以暫停";
+  speakPassage(L.text, function(){
+    state.playedOnce = true;
+    var b = document.getElementById("toQuiz");
+    if(b) b.disabled = false;
+    var hint2 = document.getElementById("listenHint");
+    if(hint2) hint2.textContent = "聽完了！可以再聽一次,或去做題目";
+  }, LESSON_VOICES[state.currentId]);
+}
+
+function renderQuestion(){
+  var L = LESSONS[state.currentId];
+  var Q = L.quiz[state.qIndex];
+  state.answered = false;
+  var opts = "";
+  for(var i=0;i<Q.o.length;i++){
+    opts += '<button class="opt en" id="opt' + i + '" onclick="answer(' + i + ')">' +
+            String.fromCharCode(65+i) + '. ' + esc(Q.o[i]) + '</button>';
+  }
+  h(stepBar(2) +
+    '<div class="card">' +
+    '<div class="eyebrow">STEP 3 · 聽力小測驗</div>' +
+    '<div class="qnum">第 ' + (state.qIndex+1) + ' 題 / 共 ' + L.quiz.length + ' 題</div>' +
+    '<div class="question en">' + esc(Q.q) + ' <button style="border:none;background:var(--blue);color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;vertical-align:middle" onclick="speakWord(\'' + Q.q.replace(/'/g,"\\'") + '\',\'' + LESSON_VOICES[state.currentId] + '\')">🔊</button></div>' +
+    '<div class="opts">' + opts + '</div>' +
+    '<div class="feedback" id="fb"></div>' +
+    '<button class="btn primary hidden" id="nextQ" onclick="nextQuestion()">下一題 →</button>' +
+    '<button class="btn ghost" onclick="goStep(1)">↺ 回去再聽一次</button>' +
+    '</div>');
+}
+function answer(i){
+  if(state.answered) return;
+  state.answered = true;
+  var L = LESSONS[state.currentId];
+  var Q = L.quiz[state.qIndex];
+  var fb = document.getElementById("fb");
+  document.getElementById("opt" + Q.a).classList.add("right");
+  if(i === Q.a){
+    state.score++;
+    fb.textContent = "答對了！🎉"; fb.className = "feedback ok";
+  }else{
+    document.getElementById("opt" + i).classList.add("wrong");
+    fb.textContent = "沒關係,正確答案是 " + String.fromCharCode(65+Q.a) + " 喔"; fb.className = "feedback no";
+  }
+  var nb = document.getElementById("nextQ");
+  if(state.qIndex === L.quiz.length - 1) nb.textContent = "看成績 🏁";
+  nb.classList.remove("hidden");
+}
+function nextQuestion(){
+  var L = LESSONS[state.currentId];
+  if(state.qIndex < L.quiz.length - 1){
+    state.qIndex++;
+    renderQuestion();
+  }else{
+    state.step = 3;
+    renderResult();
+  }
+}
+
+function renderResult(){
+  var L = LESSONS[state.currentId];
+  var msg, emoji;
+  if(state.score === L.quiz.length){ msg = "太棒了,全對！"; emoji = "🏆"; }
+  else if(state.score >= 2){ msg = "很不錯,繼續加油！"; emoji = "🌟"; }
+  else{ msg = "沒關係,多聽幾次就會進步！"; emoji = "💪"; }
+
+  var wasFirstToday = (state.progress.lastPracticeDate !== todayKey());
+  var oldMastery = state.progress.lessons[state.currentId]
+                   ? state.progress.lessons[state.currentId].mastery : 0;
+  updateMastery(state.currentId, state.score, L.quiz.length);
+  var newMastery = state.progress.lessons[state.currentId].mastery;
+  if(wasFirstToday){
+    state.progress.lastPracticeDate = todayKey();
+    state.progress.streak = calcStreak();
+  }
+  saveProgress();
+
+  var upMsg = "";
+  if(newMastery > oldMastery){
+    var stars = "★".repeat(newMastery) + "☆".repeat(MASTERED - newMastery);
+    if(newMastery >= MASTERED){
+      upMsg = '<div class="mastery-up">🎓 這一課已經掌握了！(' + stars + ')</div>';
+    }else{
+      var nextDays = INTERVAL_DAYS[newMastery];
+      upMsg = '<div class="mastery-up">⭐ 掌握度 ' + stars + '<br><span style="font-size:12px;color:var(--muted);font-weight:700">' + nextDays + ' 天後再複習一次</span></div>';
+    }
+  }
+
+  var tr = "";
+  for(var i=0;i<L.text.length;i++){ tr += "<p>" + esc(L.text[i]) + "</p>"; }
+
+  h(stepBar(3) +
+    '<div class="card">' +
+    '<div class="eyebrow">STEP 4 · 今日成果</div>' +
+    '<div class="score-big">' + emoji + ' ' + state.score + ' / ' + L.quiz.length + '</div>' +
+    '<div class="score-msg">' + msg + '</div>' +
+    upMsg +
+    '<div class="sub" style="margin-bottom:6px;margin-top:14px">📖 對照逐字稿再聽一次:</div>' +
+    '<div class="transcript en">' + tr + '</div>' +
+    '<button class="btn primary" onclick="replayWithText()">🎧 邊看邊再聽一次</button>' +
+    '<button class="btn sun" onclick="backHome()">回首頁 🏠</button>' +
+    '</div>');
+}
+function replayWithText(){
+  var L = LESSONS[state.currentId];
+  if(state.playing){ stopSpeak(); return; }
+  speakPassage(L.text, null, LESSON_VOICES[state.currentId]);
+}
+function backHome(){
+  stopSpeak();
+  renderHome();
+}
+
+(function init(){
+  loadProgress().then(function(){
+    state.progress.streak = calcStreak();
+    renderHome();
+  });
+})();
+</script>
+</body>
+</html>
